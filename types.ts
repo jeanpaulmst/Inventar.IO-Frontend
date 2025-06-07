@@ -1,5 +1,8 @@
 //Todos los DTO
 
+
+
+//CU11_ListarArticuloXProveedores
 export interface DTOProveedor {
   idProv: number
   nombreProveedor: string
@@ -19,4 +22,11 @@ export interface DTOArticuloProv {
     costoPedido : number
     stock : number
 
+}
+
+//CU16_ABMEstadoOrdenCompra
+export interface DTOABMEstadoOrdenCompra {
+  idEOC: number
+  nombreEstado: string
+  fhBajaEOC: number | null
 }

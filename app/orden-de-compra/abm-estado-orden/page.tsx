@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { DTOABMEstadoOrdenCompra } from "@/types"
 
 // Datos de ejemplo para estados de orden de compra
 const estadosData = [
@@ -58,10 +59,34 @@ const estadosData = [
 ]
 
 export default function ABMEstadoOrdenPage() {
-  const [showOnlyInactive, setShowOnlyInactive] = useState(false)
+
+  const [showOnlyActive, setShowOnlyActive] = useState(false)
+  const [estadosOrdenCompra, setEstadosOrdenCompra] = useState<DTOABMEstadoOrdenCompra[] | null>(null)
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   // Filtrar estados según el checkbox
-  const filteredEstados = showOnlyInactive ? estadosData.filter((estado) => estado.fechaHoraBaja !== null) : estadosData
+  const filteredEstados = showOnlyActive ? estadosOrdenCompra?.filter((estado) => estado.fhBajaEOC === null) : estadosOrdenCompra
+
+
+    //fetch estados
+    useEffect(() => {
+        const fetchEstados = async () => {
+            const vigentes = showOnlyActive ? 1 : 0;
+            const response = await fetch(`${API_URL}/ABMEstadoOrdenCompra/getEstados?soloVigentes=${vigentes}`)
+
+            if (!response.ok) {
+                console.error("Error al obtener los estados de orden de compra");
+                return;
+            }
+            const data: DTOABMEstadoOrdenCompra[] = await response.json();
+            setEstadosOrdenCompra(data);
+            console.log("Estados de orden de compra obtenidos:", data);
+        }
+
+        fetchEstados();
+
+    },[])
 
   const handleEliminar = (id: number, nombreEstado: string) => {
     // Aquí iría la lógica para eliminar/dar de baja el estado
@@ -83,7 +108,7 @@ export default function ABMEstadoOrdenPage() {
     alert("Funcionalidad de crear nuevo estado será implementada")
   }
 
-  return (
+   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
       <div className="container mx-auto py-8 px-4">
         {/* Header with back button */}
@@ -111,13 +136,13 @@ export default function ABMEstadoOrdenPage() {
           {/* Filtros */}
           <div className="flex items-center gap-3 mb-6">
             <Checkbox
-              id="show-inactive"
-              checked={showOnlyInactive}
-              onCheckedChange={setShowOnlyInactive}
+              id="show-active"
+              checked={showOnlyActive}
+              onCheckedChange={() => setShowOnlyActive(!showOnlyActive)}
               className="border-slate-600 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
             />
-            <label htmlFor="show-inactive" className="text-slate-300 cursor-pointer select-none">
-              Mostrar solo estados dados de baja
+            <label htmlFor="show-active" className="text-slate-300 cursor-pointer select-none">
+              Mostrar solo estados vigentes
             </label>
           </div>
         </div>
@@ -128,9 +153,7 @@ export default function ABMEstadoOrdenPage() {
             <CardTitle className="text-2xl text-purple-100 flex items-center gap-2">
               <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
               Lista de Estados de Orden de Compra
-              {showOnlyInactive && (
-                <span className="text-sm font-normal text-purple-200 ml-2">(Solo dados de baja)</span>
-              )}
+              {showOnlyActive && <span className="text-sm font-normal text-purple-200 ml-2">(Solo vigentes)</span>}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -145,24 +168,24 @@ export default function ABMEstadoOrdenPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredEstados.length > 0 ? (
-                    filteredEstados.map((estado, index) => (
+                  {(filteredEstados ?? []).length > 0 ? (
+                    (filteredEstados ?? []).map((estado, index) => (
                       <TableRow
-                        key={estado.id}
+                        key={estado.idEOC}
                         className={`
                           ${index % 2 === 0 ? "bg-slate-800" : "bg-slate-750"} 
                           hover:bg-slate-700 border-slate-600 transition-colors
                         `}
                       >
-                        <TableCell className="text-slate-300 font-mono">{estado.id}</TableCell>
+                        <TableCell className="text-slate-300 font-mono">{estado.idEOC}</TableCell>
                         <TableCell className="text-slate-100 font-medium">{estado.nombreEstado}</TableCell>
-                        <TableCell className={`${estado.fechaHoraBaja ? "text-red-400" : "text-green-400"}`}>
-                          {estado.fechaHoraBaja || "Activo"}
+                        <TableCell className={`${estado.fhBajaEOC ? "text-red-400" : "text-green-400"}`}>
+                          {estado.fhBajaEOC || "Activo"}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
                             <Button
-                              onClick={() => handleModificar(estado.id, estado.nombreEstado)}
+                              onClick={() => handleModificar(estado.idEOC, estado.nombreEstado)}
                               size="sm"
                               variant="outline"
                               className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
@@ -171,7 +194,7 @@ export default function ABMEstadoOrdenPage() {
                               Modificar
                             </Button>
                             <Button
-                              onClick={() => handleEliminar(estado.id, estado.nombreEstado)}
+                              onClick={() => handleEliminar(estado.idEOC, estado.nombreEstado)}
                               size="sm"
                               variant="outline"
                               className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1"
@@ -186,7 +209,7 @@ export default function ABMEstadoOrdenPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center text-slate-400 py-8">
-                        {showOnlyInactive ? "No hay estados dados de baja" : "No hay estados registrados"}
+                        {showOnlyActive ? "No hay estados vigentes" : "No hay estados registrados"}
                       </TableCell>
                     </TableRow>
                   )}
@@ -200,7 +223,7 @@ export default function ABMEstadoOrdenPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
                   <span className="text-slate-300">Total mostrado: </span>
-                  <span className="text-purple-400 font-semibold">{filteredEstados.length}</span>
+                  <span className="text-purple-400 font-semibold">{filteredEstados?.length ?? 0}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-blue-400 rounded-full"></div>

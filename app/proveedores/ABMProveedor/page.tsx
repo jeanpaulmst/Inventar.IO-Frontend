@@ -53,11 +53,11 @@ const providersData = [
 ]
 
 export default function ABMProveedorPage() {
-  const [showOnlyInactive, setShowOnlyInactive] = useState(false)
+  const [showOnlyActive, setShowOnlyActive] = useState(false)
 
   // Filtrar proveedores según el checkbox
-  const filteredProviders = showOnlyInactive
-    ? providersData.filter((provider) => provider.fechaHoraBaja !== null)
+  const filteredProviders = showOnlyActive
+    ? providersData.filter((provider) => provider.fechaHoraBaja === null)
     : providersData
 
   const handleEliminar = (id: number, nombre: string) => {
@@ -105,13 +105,13 @@ export default function ABMProveedorPage() {
           {/* Filtros */}
           <div className="flex items-center gap-3 mb-6">
             <Checkbox
-              id="show-inactive"
-              checked={showOnlyInactive}
-              onCheckedChange={setShowOnlyInactive}
+              id="show-active"
+              checked={showOnlyActive}
+              onCheckedChange={setShowOnlyActive}
               className="border-slate-600 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
             />
-            <label htmlFor="show-inactive" className="text-slate-300 cursor-pointer select-none">
-              Mostrar solo proveedores dados de baja
+            <label htmlFor="show-active" className="text-slate-300 cursor-pointer select-none">
+              Mostrar solo proveedores vigentes
             </label>
           </div>
         </div>
@@ -122,9 +122,7 @@ export default function ABMProveedorPage() {
             <CardTitle className="text-2xl text-green-100 flex items-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
               Lista de Proveedores
-              {showOnlyInactive && (
-                <span className="text-sm font-normal text-green-200 ml-2">(Solo dados de baja)</span>
-              )}
+              {showOnlyActive && <span className="text-sm font-normal text-green-200 ml-2">(Solo vigentes)</span>}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -180,7 +178,7 @@ export default function ABMProveedorPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center text-slate-400 py-8">
-                        {showOnlyInactive ? "No hay proveedores dados de baja" : "No hay proveedores registrados"}
+                        {showOnlyActive ? "No hay proveedores vigentes" : "No hay proveedores registrados"}
                       </TableCell>
                     </TableRow>
                   )}
