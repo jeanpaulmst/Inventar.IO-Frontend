@@ -229,14 +229,14 @@ export default function ABMEstadoOrdenPage() {
                   <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                   <span className="text-slate-300">Estados activos: </span>
                   <span className="text-blue-400 font-semibold">
-                    {estadosData.filter((p) => p.fechaHoraBaja === null).length}
+                    {estadosOrdenCompra?.filter((p) => p.fhBajaEOC === null).length}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                   <span className="text-slate-300">Estados dados de baja: </span>
                   <span className="text-red-400 font-semibold">
-                    {estadosData.filter((p) => p.fechaHoraBaja !== null).length}
+                    {estadosOrdenCompra?.filter((p) => p.fhBajaEOC !== null).length}
                   </span>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, List, Plus, Edit, BarChart3, Tags, Search } from "lucide-react"
+import { ArrowLeft, List, Plus, Edit, BarChart3, Tags, Search, AlertTriangle } from "lucide-react"
 
 export default function MaestroArticulosPage() {
   return (
@@ -32,6 +32,24 @@ export default function MaestroArticulosPage() {
               <CardContent className="pt-6">
                 <p className="text-slate-300">
                   Consulta todos los artículos organizados por proveedor con información detallada.
+                </p>
+                <div className="mt-4 flex items-center text-blue-400 text-sm font-medium">Acceder →</div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Listar Artículos a Reponer */}
+          <Link href="/maestro-articulos/ListarArticulosAReponer-Faltantes" className="group">
+            <Card className="bg-slate-800 border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
+              <CardHeader className="bg-gradient-to-r from-blue-900 to-slate-800 rounded-t-lg">
+                <CardTitle className="text-xl text-blue-100 flex items-center gap-3">
+                  <AlertTriangle className="w-6 h-6 text-blue-400" />
+                  Artículos a Reponer / Faltantes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-slate-300">
+                  Consulta los artículos que están por debajo del punto de pedido ó los que están por debajo del stock de seguridad.
                 </p>
                 <div className="mt-4 flex items-center text-blue-400 text-sm font-medium">Acceder →</div>
               </CardContent>

@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { DTOProveedor } from "@/types"
 
 // Datos de ejemplo para proveedores
 const providersData = [
@@ -54,11 +55,30 @@ const providersData = [
 
 export default function ABMProveedorPage() {
   const [showOnlyActive, setShowOnlyActive] = useState(false)
+  const [proveedores, setProveedores] = useState<DTOProveedor[] | null>(null)
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  useEffect(() => {
+    const fetchProveedores = async () => {
+      const response = await fetch(`${API_URL}/ABMProveedor/getProveedores?soloVigentes=0`)
+      if (!response.ok) {
+        console.error("Error fetching proveedores:", response.statusText)
+        return
+      }
+
+      const data: DTOProveedor[] = await response.json()
+      setProveedores(data)
+      console.log("Proveedores fetched:", data)
+    }
+    fetchProveedores()
+  }, [])
+
 
   // Filtrar proveedores según el checkbox
   const filteredProviders = showOnlyActive
-    ? providersData.filter((provider) => provider.fechaHoraBaja === null)
-    : providersData
+    ? proveedores?.filter((provider) => provider.fhBajaProveedor === null)
+    : proveedores
 
   const handleEliminar = (id: number, nombre: string) => {
     // Aquí iría la lógica para eliminar/dar de baja el proveedor
@@ -107,7 +127,7 @@ export default function ABMProveedorPage() {
             <Checkbox
               id="show-active"
               checked={showOnlyActive}
-              onCheckedChange={setShowOnlyActive}
+              onCheckedChange={() => setShowOnlyActive(!showOnlyActive)}
               className="border-slate-600 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
             />
             <label htmlFor="show-active" className="text-slate-300 cursor-pointer select-none">
@@ -137,24 +157,24 @@ export default function ABMProveedorPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProviders.length > 0 ? (
-                    filteredProviders.map((provider, index) => (
+                  {(filteredProviders ?? []).length > 0 ? (
+                    filteredProviders?.map((provider, index) => (
                       <TableRow
-                        key={provider.id}
+                        key={provider.idProv}
                         className={`
                           ${index % 2 === 0 ? "bg-slate-800" : "bg-slate-750"} 
                           hover:bg-slate-700 border-slate-600 transition-colors
                         `}
                       >
-                        <TableCell className="text-slate-300 font-mono">{provider.id}</TableCell>
-                        <TableCell className="text-slate-100 font-medium">{provider.nombre}</TableCell>
-                        <TableCell className={`${provider.fechaHoraBaja ? "text-red-400" : "text-green-400"}`}>
-                          {provider.fechaHoraBaja || "Activo"}
+                        <TableCell className="text-slate-300 font-mono">{provider.idProv}</TableCell>
+                        <TableCell className="text-slate-100 font-medium">{provider.nombreProveedor}</TableCell>
+                        <TableCell className={`${provider.fhBajaProveedor ? "text-red-400" : "text-green-400"}`}>
+                          {provider.fhBajaProveedor || "Activo"}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
                             <Button
-                              onClick={() => handleModificar(provider.id, provider.nombre)}
+                              onClick={() => handleModificar(provider.idProv, provider.nombreProveedor)}
                               size="sm"
                               variant="outline"
                               className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
@@ -163,7 +183,7 @@ export default function ABMProveedorPage() {
                               Modificar
                             </Button>
                             <Button
-                              onClick={() => handleEliminar(provider.id, provider.nombre)}
+                              onClick={() => handleEliminar(provider.idProv, provider.nombreProveedor)}
                               size="sm"
                               variant="outline"
                               className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1"
@@ -192,20 +212,20 @@ export default function ABMProveedorPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                   <span className="text-slate-300">Total mostrado: </span>
-                  <span className="text-green-400 font-semibold">{filteredProviders.length}</span>
+                  <span className="text-green-400 font-semibold">{(filteredProviders ?? []).length}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                   <span className="text-slate-300">Proveedores activos: </span>
                   <span className="text-blue-400 font-semibold">
-                    {providersData.filter((p) => p.fechaHoraBaja === null).length}
+                    {proveedores?.filter((p) => p.fhBajaProveedor === null).length}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                   <span className="text-slate-300">Proveedores dados de baja: </span>
                   <span className="text-red-400 font-semibold">
-                    {providersData.filter((p) => p.fechaHoraBaja !== null).length}
+                    {proveedores?.filter((p) => p.fhBajaProveedor !== null).length}
                   </span>
                 </div>
               </div>

@@ -21,7 +21,7 @@ export default function OrdenCompraPage() {
         {/* Functionality Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* ABM Estado Orden de Compra */}
-          <Link href="/orden-de-compra/abm-estado-orden" className="group">
+          <Link href="/orden-de-compra/ABMEstadoOrdenCompra" className="group">
             <Card className="bg-slate-800 border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
               <CardHeader className="bg-gradient-to-r from-purple-900 to-slate-800 rounded-t-lg">
                 <CardTitle className="text-xl text-purple-100 flex items-center gap-3">
