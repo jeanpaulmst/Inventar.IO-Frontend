@@ -113,13 +113,12 @@ export default function ABMProveedorPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h1 className="text-4xl font-bold text-slate-100">ABM Proveedor</h1>
 
-            <Button
-              onClick={handleNuevoProveedor}
-              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo Proveedor
-            </Button>
+            <Link href="/proveedores/abm-proveedor/AltaProveedor">
+              <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Nuevo Proveedor
+              </Button>
+            </Link>
           </div>
 
           {/* Filtros */}
