@@ -50,7 +50,7 @@ export default function AltaProveedorPage() {
         {/* Header with back button */}
         <div className="mb-8">
           <Link
-            href="/proveedores/abm-proveedor"
+            href="/proveedores/ABMProveedor"
             className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
