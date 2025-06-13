@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, List, Plus, Edit, BarChart3, Tags, Search, AlertTriangle } from "lucide-react"
+import { ArrowLeft, List, Plus, Edit, BarChart3, Tags, Search, AlertTriangle, Settings } from "lucide-react"
 
 export default function MaestroArticulosPage() {
   return (
@@ -20,6 +20,24 @@ export default function MaestroArticulosPage() {
 
         {/* Functionality Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {/* ABM Artículo */}
+          <Link href="/maestro-articulos/ABMArticulo" className="group">
+            <Card className="bg-slate-800 border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
+              <CardHeader className="bg-gradient-to-r from-blue-900 to-slate-800 rounded-t-lg">
+                <CardTitle className="text-xl text-blue-100 flex items-center gap-3">
+                  <Settings className="w-6 h-6 text-blue-400" />
+                  ABM Artículo
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-slate-300">
+                  Administra artículos: crear, modificar, eliminar y consultar todos los artículos del inventario.
+                </p>
+                <div className="mt-4 flex items-center text-blue-400 text-sm font-medium">Acceder →</div>
+              </CardContent>
+            </Card>
+          </Link>
+          
           {/* Listar Artículos por Proveedor */}
           <Link href="maestro-articulos/ListarArticulosXProveedor" className="group">
             <Card className="bg-slate-800 border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
