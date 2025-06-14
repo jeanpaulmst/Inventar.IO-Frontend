@@ -1,126 +1,70 @@
-import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Plus, List, Edit, X, CheckCircle, Clock, Settings } from "lucide-react"
+import { ShoppingCart, Clock, CheckCircle, AlertCircle } from "lucide-react"
 
 export default function OrdenCompraPage() {
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <div className="container mx-auto py-8 px-4">
-        {/* Header with back button */}
-        <div className="mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            Volver al menú principal
-          </Link>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-slate-100 mb-4">Orden de Compra</h1>
-            <p className="text-slate-400 text-lg">Gestión completa del ciclo de órdenes de compra</p>
-          </div>
-        </div>
+    <div className="flex flex-1 flex-col gap-4 p-4">
+      {/* Welcome Section */}
+      <div className="text-center py-8">
+        <h1 className="text-3xl font-bold text-slate-100 mb-2">Orden de Compra</h1>
+        <p className="text-slate-400 text-lg">Gestión completa del ciclo de órdenes de compra</p>
+      </div>
 
-        {/* Functionality Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {/* ABM Estado Orden de Compra */}
-          <Link href="/orden-de-compra/ABMEstadoOrdenCompra" className="group">
-            <Card className="bg-slate-800 border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
-              <CardHeader className="bg-gradient-to-r from-purple-900 to-slate-800 rounded-t-lg">
-                <CardTitle className="text-xl text-purple-100 flex items-center gap-3">
-                  <Settings className="w-6 h-6 text-purple-400" />
-                  ABM Estado Orden
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <p className="text-slate-300">
-                  Administra los estados posibles para las órdenes de compra en el sistema.
-                </p>
-                <div className="mt-4 flex items-center text-purple-400 text-sm font-medium">Acceder →</div>
-              </CardContent>
-            </Card>
-          </Link>
+      {/* Stats Cards */}
+      <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Órdenes Totales</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-purple-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">156</div>
+            <p className="text-xs text-slate-400">+8 esta semana</p>
+          </CardContent>
+        </Card>
 
-          {/* Generar Orden de Compra */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <Plus className="w-6 h-6 text-slate-400" />
-                Generar Orden
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Crea nuevas órdenes de compra con productos y proveedores.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Pendientes</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">23</div>
+            <p className="text-xs text-slate-400">Requieren atención</p>
+          </CardContent>
+        </Card>
 
-          {/* Listar Órdenes */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <List className="w-6 h-6 text-slate-400" />
-                Listar Órdenes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Consulta todas las órdenes de compra con sus estados actuales.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Completadas</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">128</div>
+            <p className="text-xs text-slate-400">82% del total</p>
+          </CardContent>
+        </Card>
 
-          {/* Modificar Orden */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <Edit className="w-6 h-6 text-slate-400" />
-                Modificar Orden
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Edita órdenes de compra existentes antes de su confirmación.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Canceladas</CardTitle>
+            <AlertCircle className="h-4 w-4 text-red-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">5</div>
+            <p className="text-xs text-slate-400">3% del total</p>
+          </CardContent>
+        </Card>
+      </div>
 
-          {/* Cancelar Orden */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <X className="w-6 h-6 text-slate-400" />
-                Cancelar Orden
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Cancela órdenes de compra y actualiza su estado.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
-
-          {/* Gestión de Estados */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <CheckCircle className="w-6 h-6 text-slate-400" />
-                Gestión de Estados
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Administra los estados de las órdenes (pendiente, confirmada, recibida).</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
-
-          {/* Seguimiento */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <Clock className="w-6 h-6 text-slate-400" />
-                Seguimiento
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Realiza seguimiento detallado del progreso de las órdenes.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+      {/* Main Content Area */}
+      <div className="min-h-[400px] flex-1 rounded-xl bg-slate-800 border border-slate-700 p-6">
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <ShoppingCart className="h-16 w-16 text-slate-600 mb-4" />
+          <h3 className="text-xl font-semibold text-slate-300 mb-2">Bienvenido a Orden de Compra</h3>
+          <p className="text-slate-400 max-w-md">
+            Seleccione una funcionalidad del menú lateral para comenzar a gestionar sus órdenes de compra.
+          </p>
         </div>
       </div>
     </div>

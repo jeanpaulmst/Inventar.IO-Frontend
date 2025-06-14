@@ -1,108 +1,71 @@
-import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Plus, List, Users, BarChart3, FileText, DollarSign } from "lucide-react"
+import { TrendingUp, DollarSign, Users, FileText } from "lucide-react"
 
 export default function VentasPage() {
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <div className="container mx-auto py-8 px-4">
-        {/* Header with back button */}
-        <div className="mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            Volver al menú principal
-          </Link>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-slate-100 mb-4">Ventas</h1>
-            <p className="text-slate-400 text-lg">Módulo de ventas y gestión comercial</p>
-          </div>
-        </div>
+    <div className="flex flex-1 flex-col gap-4 p-4">
+      {/* Welcome Section */}
+      <div className="text-center py-8">
+        <h1 className="text-3xl font-bold text-slate-100 mb-2">Ventas</h1>
+        <p className="text-slate-400 text-lg">Módulo de ventas y gestión comercial</p>
+      </div>
 
-        {/* Functionality Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {/* Generar Venta - Funcionalidad principal disponible */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <Plus className="w-6 h-6 text-slate-400" />
-                Generar Venta
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Registra nuevas ventas con productos, cantidades y clientes.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+      {/* Stats Cards */}
+      <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Ventas del Mes</CardTitle>
+            <TrendingUp className="h-4 w-4 text-orange-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">$124,580</div>
+            <p className="text-xs text-slate-400">+15% vs mes anterior</p>
+          </CardContent>
+        </Card>
 
-          {/* Historial de Ventas */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <List className="w-6 h-6 text-slate-400" />
-                Historial de Ventas
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Consulta el historial completo de todas las ventas realizadas.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Transacciones</CardTitle>
+            <FileText className="h-4 w-4 text-blue-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">342</div>
+            <p className="text-xs text-slate-400">+23 esta semana</p>
+          </CardContent>
+        </Card>
 
-          {/* Gestión de Clientes */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <Users className="w-6 h-6 text-slate-400" />
-                Gestión de Clientes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Administra la información de clientes y sus datos de contacto.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Clientes Activos</CardTitle>
+            <Users className="h-4 w-4 text-green-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">89</div>
+            <p className="text-xs text-slate-400">+7 nuevos este mes</p>
+          </CardContent>
+        </Card>
 
-          {/* Reportes de Ventas */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-slate-400" />
-                Reportes de Ventas
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Genera reportes detallados de ventas por período y producto.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">Ticket Promedio</CardTitle>
+            <DollarSign className="h-4 w-4 text-yellow-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-100">$364</div>
+            <p className="text-xs text-slate-400">+8% vs mes anterior</p>
+          </CardContent>
+        </Card>
+      </div>
 
-          {/* Facturación */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <FileText className="w-6 h-6 text-slate-400" />
-                Facturación
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Genera facturas y comprobantes de venta automáticamente.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
-
-          {/* Control de Ingresos */}
-          <Card className="bg-slate-800 border-slate-700 shadow-xl opacity-60">
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-t-lg">
-              <CardTitle className="text-xl text-slate-300 flex items-center gap-3">
-                <DollarSign className="w-6 h-6 text-slate-400" />
-                Control de Ingresos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-slate-400">Monitorea los ingresos y análisis financiero de las ventas.</p>
-              <div className="mt-4 flex items-center text-slate-500 text-sm">Próximamente...</div>
-            </CardContent>
-          </Card>
+      {/* Main Content Area */}
+      <div className="min-h-[400px] flex-1 rounded-xl bg-slate-800 border border-slate-700 p-6">
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <TrendingUp className="h-16 w-16 text-slate-600 mb-4" />
+          <h3 className="text-xl font-semibold text-slate-300 mb-2">Bienvenido a Ventas</h3>
+          <p className="text-slate-400 max-w-md">
+            Seleccione una funcionalidad del menú lateral para comenzar a gestionar sus ventas y transacciones
+            comerciales.
+          </p>
         </div>
       </div>
     </div>
