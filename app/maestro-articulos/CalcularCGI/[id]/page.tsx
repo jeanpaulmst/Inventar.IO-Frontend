@@ -5,130 +5,34 @@ import { ArrowLeft, Star, Package, DollarSign, Clock, Warehouse } from "lucide-r
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-
-// Datos de ejemplo para artículos
-const articulosData = {
-  1: { nombre: "Shampoo Axion" },
-  2: { nombre: "Laptop HP Pavilion" },
-  3: { nombre: "Monitor LG 24ML44" },
-  4: { nombre: "Resma Papel A4" },
-  5: { nombre: "Silla Ergonómica Pro" },
-  6: { nombre: "Bolígrafos Pack x10" },
-  7: { nombre: "Escritorio Ejecutivo" },
-  8: { nombre: "Grapadora Metálica" },
-  9: { nombre: "Teclado Logitech" },
-  10: { nombre: "Mouse Óptico" },
-}
-
-// Datos de ejemplo para ArticuloProveedor
-const articuloProveedorData = {
-  1: [
-    {
-      id: 1,
-      nombreProveedor: "Distribuidora Belleza S.A.",
-      modeloInventario: "Tiempo Fijo",
-      costoCompra: 1850.25,
-      costoPedido: 125.5,
-      costoAlmacenamiento: 15.75,
-      cgi: 245.8,
-      esPredeterminado: true,
-    },
-    {
-      id: 2,
-      nombreProveedor: "Cosméticos del Norte",
-      modeloInventario: "Lote Fijo",
-      costoCompra: 1920.0,
-      costoPedido: 150.0,
-      costoAlmacenamiento: 18.5,
-      cgi: 268.9,
-      esPredeterminado: false,
-    },
-    {
-      id: 3,
-      nombreProveedor: "Importadora Premium",
-      modeloInventario: "Tiempo Fijo",
-      costoCompra: 1780.75,
-      costoPedido: 110.25,
-      costoAlmacenamiento: 14.2,
-      cgi: 228.45,
-      esPredeterminado: false,
-    },
-  ],
-  2: [
-    {
-      id: 4,
-      nombreProveedor: "Tecnología Avanzada",
-      modeloInventario: "Lote Fijo",
-      costoCompra: 42500.0,
-      costoPedido: 350.0,
-      costoAlmacenamiento: 125.0,
-      cgi: 1850.75,
-      esPredeterminado: true,
-    },
-    {
-      id: 5,
-      nombreProveedor: "Computadoras del Sur",
-      modeloInventario: "Tiempo Fijo",
-      costoCompra: 43200.5,
-      costoPedido: 400.0,
-      costoAlmacenamiento: 140.25,
-      cgi: 1920.3,
-      esPredeterminado: false,
-    },
-  ],
-  3: [
-    {
-      id: 6,
-      nombreProveedor: "Electrónica Moderna",
-      modeloInventario: "Tiempo Fijo",
-      costoCompra: 11800.0,
-      costoPedido: 200.0,
-      costoAlmacenamiento: 45.5,
-      cgi: 520.75,
-      esPredeterminado: true,
-    },
-    {
-      id: 7,
-      nombreProveedor: "Monitores Express",
-      modeloInventario: "Lote Fijo",
-      costoCompra: 12100.25,
-      costoPedido: 180.0,
-      costoAlmacenamiento: 48.75,
-      cgi: 545.2,
-      esPredeterminado: false,
-    },
-    {
-      id: 8,
-      nombreProveedor: "Pantallas HD",
-      modeloInventario: "Tiempo Fijo",
-      costoCompra: 11650.0,
-      costoPedido: 220.5,
-      costoAlmacenamiento: 42.3,
-      cgi: 498.9,
-      esPredeterminado: false,
-    },
-  ],
-}
+import { useEffect, useState } from "react"
+import { DTOCalcularCGI } from "@/types"
 
 export default function CalcularCGIDetallesPage() {
   const params = useParams()
   const router = useRouter()
   const articuloId = Number(params.id)
+  const BASE_URL = "http://localhost:8080/CalcularCGI";
+  const [dtoCalcularCGI, setDTOCalcularCGI] = useState<DTOCalcularCGI | null>(null)
 
-  // Obtener datos del artículo
-  const articulo = articulosData[articuloId as keyof typeof articulosData]
-  const proveedores = articuloProveedorData[articuloId as keyof typeof articuloProveedorData] || []
+  useEffect(() => {
+    const realizarCalculo = async () => {
+      const response = await fetch(`${BASE_URL}/calculo?idArticulo=${articuloId}`)
+      if (!response.ok) {
+        console.error("Error al hacer el cálculo:", response.statusText)
+        return
+      }
 
-  if (!articulo) {
+      const data: DTOCalcularCGI = await response.json()
+      setDTOCalcularCGI(data)
+    }
+    realizarCalculo()
+  }, [])
+
+  if (!dtoCalcularCGI) {
     return (
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="text-center py-8">
-          <h1 className="text-2xl font-bold text-slate-100 mb-4">Artículo no encontrado</h1>
-          <Button onClick={() => router.back()} className="bg-blue-600 hover:bg-blue-700">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
-        </div>
+      <div className="flex justify-center items-center h-96 text-slate-300 text-lg">
+        Cargando cálculo CGI...
       </div>
     )
   }
@@ -146,18 +50,18 @@ export default function CalcularCGIDetallesPage() {
           Volver
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">{articulo.nombre}</h1>
+          <h1 className="text-3xl font-bold text-slate-100">{dtoCalcularCGI.nombreArticulo}</h1>
           <p className="text-slate-400">Cálculo de CGI por proveedor</p>
         </div>
       </div>
 
       {/* Grid de cards de proveedores */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {proveedores.map((proveedor) => (
+        {dtoCalcularCGI.datosCGI.map((proveedor) => (
           <Card
-            key={proveedor.id}
+            key={proveedor.nombreProveedor}
             className={`${
-              proveedor.esPredeterminado
+              proveedor.predeterminado
                 ? "bg-gradient-to-br from-yellow-900/20 to-slate-800 border-yellow-500/50 shadow-yellow-500/10 shadow-lg"
                 : "bg-slate-800 border-slate-700"
             } transition-all duration-300 hover:shadow-lg`}
@@ -168,7 +72,7 @@ export default function CalcularCGIDetallesPage() {
                   <Package className="w-5 h-5 text-blue-400" />
                   {proveedor.nombreProveedor}
                 </CardTitle>
-                {proveedor.esPredeterminado && (
+                {proveedor.predeterminado && (
                   <Badge className="bg-yellow-600 text-slate-900 hover:bg-yellow-700">
                     <Star className="w-3 h-3 mr-1" />
                     Predeterminado
@@ -183,7 +87,7 @@ export default function CalcularCGIDetallesPage() {
                   <Clock className="w-4 h-4 text-purple-400" />
                   <span className="text-slate-300 text-sm">Modelo:</span>
                 </div>
-                <span className="text-slate-100 font-medium">{proveedor.modeloInventario}</span>
+                <span className="text-slate-100 font-medium">{proveedor.nombreTipoModelo}</span>
               </div>
 
               {/* Costos */}
@@ -216,15 +120,17 @@ export default function CalcularCGIDetallesPage() {
               {/* CGI destacado */}
               <div
                 className={`p-4 rounded-lg border-2 ${
-                  proveedor.esPredeterminado ? "bg-yellow-900/20 border-yellow-500/50" : "bg-slate-700 border-slate-600"
+                  proveedor.predeterminado ? "bg-yellow-900/20 border-yellow-500/50" : "bg-slate-700 border-slate-600"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-slate-200 font-medium">CGI Total:</span>
                   <span
-                    className={`text-xl font-bold ${proveedor.esPredeterminado ? "text-yellow-400" : "text-slate-100"}`}
+                    className={`text-xl font-bold ${
+                      proveedor.predeterminado ? "text-yellow-400" : "text-slate-100"
+                    }`}
                   >
-                    ${proveedor.cgi.toFixed(2)}
+                    ${(proveedor.cgi ?? 0).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -234,7 +140,7 @@ export default function CalcularCGIDetallesPage() {
       </div>
 
       {/* Información adicional */}
-      {proveedores.length > 0 && (
+      {dtoCalcularCGI.datosCGI.length > 0 ? (
         <Card className="bg-slate-800 border-slate-700 mt-6">
           <CardHeader>
             <CardTitle className="text-slate-100 flex items-center gap-2">
@@ -247,29 +153,27 @@ export default function CalcularCGIDetallesPage() {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                 <span className="text-slate-300">Total proveedores: </span>
-                <span className="text-blue-400 font-semibold">{proveedores.length}</span>
+                <span className="text-blue-400 font-semibold">{dtoCalcularCGI.datosCGI.length}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                 <span className="text-slate-300">CGI más bajo: </span>
                 <span className="text-green-400 font-semibold">
-                  ${Math.min(...proveedores.map((p) => p.cgi)).toFixed(2)}
+                  ${Math.min(...dtoCalcularCGI.datosCGI.map((p) => p.cgi)).toFixed(2)}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                 <span className="text-slate-300">Proveedor predeterminado: </span>
                 <span className="text-yellow-400 font-semibold">
-                  {proveedores.find((p) => p.esPredeterminado)?.nombreProveedor || "Ninguno"}
+                  {dtoCalcularCGI.datosCGI.find((p) => p.predeterminado)?.nombreProveedor || "Ninguno"}
                 </span>
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {proveedores.length === 0 && (
-        <Card className="bg-slate-800 border-slate-700">
+      ) : (
+        <Card className="bg-slate-800 border-slate-700 mt-6">
           <CardContent className="py-8">
             <div className="text-center">
               <Package className="w-16 h-16 text-slate-600 mx-auto mb-4" />

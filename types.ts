@@ -66,3 +66,25 @@ export interface DTOABMEstadoOrdenCompra {
   nombreEstado: string
   fhBajaEOC: number | null
 }
+
+//CU18_CalcularCGI
+export interface DTOTablaArticulo {
+    id: number  
+    nombre: string
+    descripcionArt: string
+}
+
+export interface DTOCalcularCGI {
+    nombreArticulo: string
+    datosCGI : DTODatosCGI[]
+}
+
+export interface DTODatosCGI {
+    nombreProveedor : string
+    nombreTipoModelo : string
+    cgi : number
+    costoCompra : number
+    costoPedido : number
+    costoAlmacenamiento : number
+    predeterminado: boolean
+}
