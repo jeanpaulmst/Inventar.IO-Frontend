@@ -4,7 +4,7 @@ import type React from "react"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowLeft, Users, Settings, UserPlus, Edit, Phone, FileText, BarChart3 } from "lucide-react"
+import { ArrowLeft, Users, Settings, UserPlus, Edit, Phone, FileText, BarChart3, Search } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -24,9 +24,16 @@ import { Separator } from "@/components/ui/separator"
 const menuItems = [
   {
     title: "ABM Proveedor",
-    url: "/proveedores/ABMProveedor",
+    url: "/proveedores/abm-proveedor",
     icon: Settings,
     description: "Administrar proveedores del sistema",
+    available: true,
+  },
+  {
+    title: "Listar Proveedores x Artículo",
+    url: "/proveedores/ListarProveedoresXArticulo",
+    icon: Search,
+    description: "Buscar proveedores por artículo",
     available: true,
   },
   {
