@@ -36,8 +36,7 @@ export default function CalcularCGIPage() {
     <div className="flex flex-1 flex-col gap-4 p-4">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-100 mb-2">Calcular CGI</h1>
-        <p className="text-slate-400">Calcular el Costo de Gestión de Inventario para cada artículo</p>
+        <h1 className="text-3xl font-bold text-slate-100 mb-2">Articulos</h1>
       </div>
 
       {/* Tabla de artículos */}
@@ -45,7 +44,7 @@ export default function CalcularCGIPage() {
         <CardHeader className="bg-gradient-to-r from-blue-900 to-slate-800 rounded-t-lg">
           <CardTitle className="text-2xl text-blue-100 flex items-center gap-2">
             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-            Artículos para Cálculo de CGI
+            Listado de articulos
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -56,6 +55,7 @@ export default function CalcularCGIPage() {
                   <TableHead className="text-blue-200 font-semibold">ID</TableHead>
                   <TableHead className="text-blue-200 font-semibold">Nombre</TableHead>
                   <TableHead className="text-blue-200 font-semibold">Descripción</TableHead>
+                  <TableHead className="text-blue-200 font-semibold">Stock</TableHead>
                   <TableHead className="text-blue-200 font-semibold text-center">Acción</TableHead>
                 </TableRow>
               </TableHeader>
@@ -74,8 +74,9 @@ export default function CalcularCGIPage() {
                       <TableCell className="text-slate-300 max-w-md" title={articulo.descripcionArt}>
                         {articulo.descripcionArt}
                       </TableCell>
+                      <TableCell className="text-slate-100 font-medium">{articulo.stock}</TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-center">
+                        <div className="flex items-center justify-center gap-2">
                           <Button
                             onClick={() => handleCalcularCGI(articulo.id)}
                             size="sm"
@@ -83,6 +84,13 @@ export default function CalcularCGIPage() {
                           >
                             <Calculator className="w-4 h-4" />
                             Calcular CGI
+                          </Button>
+                          <Button
+                            onClick={() => router.push(`/maestro-articulos/AjustarInventario/${articulo.id}`)}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2"
+                          >
+                            Ajustar inventario
                           </Button>
                         </div>
                       </TableCell>
@@ -106,11 +114,6 @@ export default function CalcularCGIPage() {
                 <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                 <span className="text-slate-300">Total de artículos: </span>
                 <span className="text-blue-400 font-semibold">{articulos?.length ?? 0}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                <span className="text-slate-300">Disponibles para cálculo CGI: </span>
-                <span className="text-yellow-400 font-semibold">{articulos?.length ?? 0}</span>
               </div>
             </div>
           </div>

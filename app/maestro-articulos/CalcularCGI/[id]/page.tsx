@@ -37,6 +37,8 @@ export default function CalcularCGIDetallesPage() {
     )
   }
 
+  const cgiMinimo = Math.min(...dtoCalcularCGI.datosCGI.map((p) => p.cgi))
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       {/* Header con botón de volver */}
@@ -57,86 +59,90 @@ export default function CalcularCGIDetallesPage() {
 
       {/* Grid de cards de proveedores */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {dtoCalcularCGI.datosCGI.map((proveedor) => (
-          <Card
-            key={proveedor.nombreProveedor}
-            className={`${
-              proveedor.predeterminado
-                ? "bg-gradient-to-br from-yellow-900/20 to-slate-800 border-yellow-500/50 shadow-yellow-500/10 shadow-lg"
-                : "bg-slate-800 border-slate-700"
-            } transition-all duration-300 hover:shadow-lg`}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg text-slate-100 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-blue-400" />
-                  {proveedor.nombreProveedor}
-                </CardTitle>
-                {proveedor.predeterminado && (
-                  <Badge className="bg-yellow-600 text-slate-900 hover:bg-yellow-700">
-                    <Star className="w-3 h-3 mr-1" />
-                    Predeterminado
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Modelo de Inventario */}
-              <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-purple-400" />
-                  <span className="text-slate-300 text-sm">Modelo:</span>
-                </div>
-                <span className="text-slate-100 font-medium">{proveedor.nombreTipoModelo}</span>
-              </div>
+        {dtoCalcularCGI.datosCGI.map((proveedor) => {
+          const esCGIMasBajo = proveedor.cgi === cgiMinimo
 
-              {/* Costos */}
-              <div className="space-y-3">
+          return (
+            <Card
+              key={proveedor.nombreProveedor}
+              className={`${
+                esCGIMasBajo
+                  ? "bg-gradient-to-br from-yellow-900/100 to-slate-800 border-yellow-500/50 shadow-yellow-500/10 shadow-lg"
+                  : "bg-slate-800 border-slate-700"
+              } transition-all duration-300 hover:shadow-lg`}
+            >
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg text-slate-100 flex items-center gap-2">
+                    <Package className="w-5 h-5 text-blue-400" />
+                    {proveedor.nombreProveedor}
+                  </CardTitle>
+                  {proveedor.predeterminado && (
+                    <Badge className="bg-yellow-200 text-slate-900 hover:bg-yellow-200">
+                      <Star className="w-3 h-3 mr-1" />
+                      Predeterminado
+                    </Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Modelo de Inventario */}
+                <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-green-400" />
-                    <span className="text-slate-300 text-sm">Costo Compra:</span>
+                    <Clock className="w-4 h-4 text-purple-400" />
+                    <span className="text-slate-300 text-sm">Modelo:</span>
                   </div>
-                  <span className="text-green-400 font-semibold">${proveedor.costoCompra.toFixed(2)}</span>
+                  <span className="text-slate-100 font-medium">{proveedor.nombreTipoModelo}</span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-blue-400" />
-                    <span className="text-slate-300 text-sm">Costo Pedido:</span>
+                {/* Costos */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Costo Compra:</span>
+                    </div>
+                    <span className="text-green-400 font-semibold">${proveedor.costoCompra.toFixed(2)}</span>
                   </div>
-                  <span className="text-blue-400 font-semibold">${proveedor.costoPedido.toFixed(2)}</span>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4 text-blue-400" />
+                      <span className="text-slate-300 text-sm">Costo Pedido:</span>
+                    </div>
+                    <span className="text-blue-400 font-semibold">${proveedor.costoPedido.toFixed(2)}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Warehouse className="w-4 h-4 text-orange-400" />
+                      <span className="text-slate-300 text-sm">Costo Almacenamiento:</span>
+                    </div>
+                    <span className="text-orange-400 font-semibold">${proveedor.costoAlmacenamiento.toFixed(2)}</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Warehouse className="w-4 h-4 text-orange-400" />
-                    <span className="text-slate-300 text-sm">Costo Almacenamiento:</span>
+                {/* CGI destacado */}
+                <div
+                  className={`p-4 rounded-lg border-2 ${
+                    esCGIMasBajo ? "bg-yellow-900/20 border-yellow-500/50" : "bg-slate-700 border-slate-600"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-200 font-medium">CGI Total:</span>
+                    <span
+                      className={`text-xl font-bold ${
+                        esCGIMasBajo ? "text-yellow-400" : "text-slate-100"
+                      }`}
+                    >
+                      ${(proveedor.cgi ?? 0).toFixed(2)}
+                    </span>
                   </div>
-                  <span className="text-orange-400 font-semibold">${proveedor.costoAlmacenamiento.toFixed(2)}</span>
                 </div>
-              </div>
-
-              {/* CGI destacado */}
-              <div
-                className={`p-4 rounded-lg border-2 ${
-                  proveedor.predeterminado ? "bg-yellow-900/20 border-yellow-500/50" : "bg-slate-700 border-slate-600"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-200 font-medium">CGI Total:</span>
-                  <span
-                    className={`text-xl font-bold ${
-                      proveedor.predeterminado ? "text-yellow-400" : "text-slate-100"
-                    }`}
-                  >
-                    ${(proveedor.cgi ?? 0).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
       {/* Información adicional */}
@@ -159,7 +165,7 @@ export default function CalcularCGIDetallesPage() {
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                 <span className="text-slate-300">CGI más bajo: </span>
                 <span className="text-green-400 font-semibold">
-                  ${Math.min(...dtoCalcularCGI.datosCGI.map((p) => p.cgi)).toFixed(2)}
+                  ${cgiMinimo.toFixed(2)}
                 </span>
               </div>
               <div className="flex items-center gap-2">

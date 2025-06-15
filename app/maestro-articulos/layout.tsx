@@ -23,6 +23,13 @@ import { Separator } from "@/components/ui/separator"
 
 const menuItems = [
   {
+    title: "Articulos",
+    url: "/maestro-articulos/CalcularCGI",
+    icon: Calculator,
+    description: "Listado de todos los articulos vigentes",
+    available: true,
+  },
+  {
     title: "ABM Artículo",
     url: "/maestro-articulos/ABMArticulo",
     icon: Settings,
@@ -41,13 +48,6 @@ const menuItems = [
     url: "/maestro-articulos/ListarArticulosAReponer-Faltantes",
     icon: AlertTriangle,
     description: "Ver artículos que necesitan reposición",
-    available: true,
-  },
-  {
-    title: "Calcular CGI",
-    url: "/maestro-articulos/CalcularCGI",
-    icon: Calculator,
-    description: "Calcular CGI de artículos",
     available: true,
   },
   {

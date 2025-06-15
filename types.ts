@@ -53,6 +53,12 @@ export interface DTOArticuloProv {
 
 }
 
+//CU12_AjustarInventario
+export interface DTOAjustarInventario {
+    nombre: string
+    cantidad: number
+}
+
 //CU14_ABMProveedor
 export interface DTOProveedor {
   idProv: number
@@ -72,6 +78,7 @@ export interface DTOTablaArticulo {
     id: number  
     nombre: string
     descripcionArt: string
+    stock: number
 }
 
 export interface DTOCalcularCGI {
