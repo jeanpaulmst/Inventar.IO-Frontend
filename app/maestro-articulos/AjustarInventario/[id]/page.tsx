@@ -22,6 +22,8 @@ export default function AjustarInventarioPage() {
   const [loading, setLoading] = useState(true)
   const [resultado, setResultado] = useState<null | boolean>(null)
   const [confirmacionForzada, setConfirmacionForzada] = useState(false)
+  const [errorMensaje, setErrorMensaje] = useState<string | null>(null)
+
 
 
   useEffect(() => {
@@ -45,6 +47,7 @@ export default function AjustarInventarioPage() {
   }, [idArticulo])
 
     const handleConfirmar = async () => {
+      setErrorMensaje(null)
   try {
     const response = await fetch(
       `http://localhost:8080/AjustarInventario/confirmar?idArticulo=${idArticulo}&stock=${stock}&forzarConfirmacion=${confirmacionForzada}`,
@@ -52,7 +55,11 @@ export default function AjustarInventarioPage() {
         method: "POST",
       }
     )
-    if (!response.ok) throw new Error("Error al confirmar")
+    if (!response.ok) {
+      const errorData = await response.json()
+      setErrorMensaje(errorData.mensaje || "Ocurrió un error al confirmar")
+      return
+    }
 
     const res = await response.json()
 
@@ -62,7 +69,7 @@ export default function AjustarInventarioPage() {
       // Stock correcto, sin necesidad de orden de compra
       setTimeout(() => {
         router.back()
-      }, 1500)
+      }, 1000)
     } else if (!confirmacionForzada) {
       // Stock bajo punto de pedido y es la primera vez
       setConfirmacionForzada(true)
@@ -70,7 +77,7 @@ export default function AjustarInventarioPage() {
       // Segunda vez, confirmar aunque esté bajo punto de pedido
       setTimeout(() => {
         router.back()
-      }, 1500)
+      }, 1000)
     }
   } catch (error) {
     console.error("Error:", error)
@@ -108,6 +115,12 @@ export default function AjustarInventarioPage() {
             >
               Confirmar Ajuste
             </Button>
+
+            {errorMensaje && (
+              <div className="text-red-500 font-medium mt-2">
+                {errorMensaje}
+              </div>
+            )}
 
             {resultado !== null && (
               <div className={`p-3 rounded-md font-medium ${resultado ? "bg-yellow-600 text-yellow-100" : "bg-green-700 text-green-100"}`}>
