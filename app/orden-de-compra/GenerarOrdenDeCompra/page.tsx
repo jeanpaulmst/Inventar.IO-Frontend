@@ -187,6 +187,16 @@ const actualizarFila = async (id: string, campo: keyof FilaOrden, valor: any) =>
           filaActualizada.sugerenciaOrden = fila.sugerenciaOrden;
         }
 
+        /* Si elige otro proveedor que no sea el predeterminado, que la cantidad a pedir sea 1*/
+        if(campo === "proveedorId"){
+            const idProvPredetermiando = fila.sugerenciaOrden?.proveedores.find((prov) => prov.predeterminado === true)?.proveedorId
+            if(valor !== idProvPredetermiando){
+                filaActualizada.cantidad = 1;
+            }else{
+                filaActualizada.cantidad = fila.sugerenciaOrden?.cantidadPredeterminada?? 1;
+            }
+        }
+
         // Calcular subtotal automáticamente
         if (["articuloId", "proveedorId", "cantidad"].includes(campo)) {
           const articulo = articulosData.find((art) => art.id === filaActualizada.articuloId);
