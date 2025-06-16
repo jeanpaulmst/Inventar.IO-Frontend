@@ -4,7 +4,7 @@ import type React from "react"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowLeft, ShoppingCart, Settings, Plus, List, Edit, X, CheckCircle, Clock } from "lucide-react"
+import { ArrowLeft, ShoppingCart, Settings, Plus, List, Edit, X, CheckCircle, Clock, Cog } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -24,17 +24,17 @@ import { Separator } from "@/components/ui/separator"
 const menuItems = [
   {
     title: "ABM Estado Orden",
-    url: "/orden-compra/ABMEstadoOrdenCompra",
+    url: "/orden-de-compra/ABMEstadoOrdenCompra",
     icon: Settings,
     description: "Administrar estados de órdenes",
     available: true,
   },
   {
-    title: "Generar Orden",
-    url: "/orden-compra/generar",
-    icon: Plus,
-    description: "Crear nuevas órdenes de compra",
-    available: false,
+    title: "Gestión de Ordenes",
+    url: "/orden-de-compra/GestionDeOrdenes",
+    icon: Cog,
+    description: "Gestionar órdenes pendientes",
+    available: true,
   },
   {
     title: "Listar Órdenes",
