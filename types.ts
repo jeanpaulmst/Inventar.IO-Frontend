@@ -63,6 +63,50 @@ export interface DTOModificarOrdenCompra {
   proveedores: DTOProveedor[]
 }
 
+//CU9_GenerarOrdenCompra
+export interface Articulo {
+  id: number;
+  costoAlmacenamiento: number;
+  demanda: number;
+  descripcionArt: string;
+  fhBajaArticulo: string | null; // puede ser null o una fecha en formato ISO
+  inventarioMaxArticulo: number;
+  nombre: string;
+  precioUnitario: number;
+  proximaRevision: number; // timestamp en milisegundos
+  puntoPedido: number;
+  stock: number;
+  tiempoFijo: number;
+}
+
+export interface ArticuloSeleccionado {
+  articuloId: number;
+  sugerenciaOrden: DTOSugerirOrdenDetalle;
+}
+
+export interface DTOSugerirOrdenDetalle {
+  cantidadPredeterminada: number;
+  proveedores: ProveedorArticulo[];
+}
+
+export interface ProveedorArticulo {
+  proveedorId: number;
+  nombreProvedor: string;
+  costoUnitario: number;
+  predeterminado: boolean;
+}
+
+export interface DTONuevaOrden {
+  detalles: DTODetalleOrden[];
+  confirmacion: boolean;
+}
+
+export interface DTODetalleOrden {
+  cantidad: number;
+  subtotal: number;
+  articuloProveedorId: number
+}
+
 //CU11_ListarArticuloXProveedores
 export interface DTOProveedor {
   idProv: number

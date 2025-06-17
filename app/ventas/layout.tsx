@@ -24,10 +24,10 @@ import { Separator } from "@/components/ui/separator"
 const menuItems = [
   {
     title: "Generar Venta",
-    url: "/ventas/generar",
+    url: "/ventas/GenerarVenta",
     icon: Plus,
     description: "Registrar nuevas ventas",
-    available: false,
+    available: true,
   },
   {
     title: "Historial de Ventas",
@@ -76,8 +76,8 @@ export default function VentasLayout({
   return (
     <div className="min-h-screen bg-slate-900">
       <SidebarProvider>
-        <Sidebar className="border-slate-700">
-          <SidebarHeader className="border-b border-slate-700 p-4">
+        <Sidebar className="bg-slate-800 border-slate-700">
+          <SidebarHeader className="border-b border-slate-700 p-4 bg-slate-800">
             <div className="flex items-center gap-3">
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-orange-600 text-white">
                 <TrendingUp className="size-4" />
@@ -96,7 +96,7 @@ export default function VentasLayout({
             </Link>
           </SidebarHeader>
 
-          <SidebarContent>
+          <SidebarContent className="bg-slate-800">
             <SidebarGroup>
               <SidebarGroupLabel className="text-slate-400">Funcionalidades</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -107,7 +107,9 @@ export default function VentasLayout({
                         asChild
                         isActive={pathname === item.url}
                         className={`${
-                          !item.available ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-700 hover:text-slate-100"
+                          !item.available
+                            ? "opacity-50 cursor-not-allowed text-slate-500"
+                            : "text-slate-300 hover:bg-slate-700 hover:text-slate-100 data-[active=true]:bg-orange-600 data-[active=true]:text-white"
                         }`}
                         tooltip={!item.available ? "Próximamente..." : item.description}
                       >
@@ -131,8 +133,8 @@ export default function VentasLayout({
           </SidebarContent>
         </Sidebar>
 
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-700 px-4">
+        <SidebarInset className="bg-slate-900">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-700 px-4 bg-slate-900">
             <SidebarTrigger className="-ml-1 text-slate-400 hover:text-slate-100" />
             <Separator orientation="vertical" className="mr-2 h-4 bg-slate-600" />
             <div className="flex items-center gap-2">
@@ -147,9 +149,10 @@ export default function VentasLayout({
               )}
             </div>
           </header>
-          <div className="flex-1">{children}</div>
+          <div className="flex-1 bg-slate-900">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </div>
   )
 }
+
