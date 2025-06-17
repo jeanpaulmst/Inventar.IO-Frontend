@@ -30,47 +30,12 @@ const menuItems = [
     available: true,
   },
   {
-    title: "Generar Orden",
-    url: "/orden-compra/generar",
+    title: "Ordenes de compra",
+    url: "/orden-de-compra/OrdenesCompra",
     icon: Plus,
-    description: "Crear nuevas órdenes de compra",
-    available: false,
-  },
-  {
-    title: "Listar Órdenes",
-    url: "/orden-compra/listar",
-    icon: List,
-    description: "Ver todas las órdenes de compra",
-    available: false,
-  },
-  {
-    title: "Modificar Orden",
-    url: "/orden-compra/modificar",
-    icon: Edit,
-    description: "Editar órdenes existentes",
-    available: false,
-  },
-  {
-    title: "Cancelar Orden",
-    url: "/orden-compra/cancelar",
-    icon: X,
-    description: "Cancelar órdenes de compra",
-    available: false,
-  },
-  {
-    title: "Gestión de Estados",
-    url: "/orden-compra/estados",
-    icon: CheckCircle,
-    description: "Administrar estados de órdenes",
-    available: false,
-  },
-  {
-    title: "Seguimiento",
-    url: "/orden-compra/seguimiento",
-    icon: Clock,
-    description: "Seguimiento de órdenes",
-    available: false,
-  },
+    description: "Lista de órdenes de compra con sus respectivas opciones",
+    available: true,
+  }
 ]
 
 export default function OrdenCompraLayout({

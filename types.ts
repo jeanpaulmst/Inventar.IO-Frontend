@@ -29,7 +29,39 @@ export interface DTOArticulo {
 }
 
 //CU4_ModificarOrdenDeCompra
+export interface OrdenDeCompra {
+  idOrdenDeCompra: number
+  articulos: string[]
+  total: number
+  estado: string
+}
 
+export interface DTODetallesOC {
+  idOCDetalle: number
+  cantidad: number
+  subTotal: number
+  costoUnitario: number
+  costoPedido: number
+  nombreArt: string
+  costoAlmacenamientoArt: number
+  nombreProveedor: string
+  predeterminado: boolean
+  puntoPedido: number
+}
+
+export interface DTOProveedor {
+  idProveedor: number
+  nombreProveedor: string
+  costoPedido: number
+  costoUnitario: number
+}
+
+export interface DTOModificarOrdenCompra {
+  idOC: number
+  fhAltaOC: Date
+  detallesOC: DTODetallesOC[]
+  proveedores: DTOProveedor[]
+}
 
 //CU11_ListarArticuloXProveedores
 export interface DTOProveedor {
