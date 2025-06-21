@@ -135,6 +135,19 @@ export interface DTOAjustarInventario {
     cantidad: number
 }
 
+//CU_13_ABMArticulo
+export interface DTOABMArticulo {
+
+  costoAlmacenamiento: number
+  demanda: number
+  descripcionArt: string
+  inventarioMaxArticulo: number
+  nombre: string
+  precioUnitario: number
+  stock: number
+
+}
+
 //CU14_ABMProveedor
 export interface DTOProveedor {
   idProv: number
