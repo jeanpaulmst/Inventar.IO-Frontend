@@ -246,6 +246,10 @@ const actualizarFila = async (id: string, campo: keyof FilaOrden, valor: any) =>
       {} as Record<number, FilaOrden[]>,
     )
 
+    //Iterar el Record ordenesPorProveedor para llenar los DTO de ordenes de compra
+    
+        
+
     console.log("ordenesXprov: ", ordenesPorProveedor)
 
     const cantidadOrdenes = Object.keys(ordenesPorProveedor).length
