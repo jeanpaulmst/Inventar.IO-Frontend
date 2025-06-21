@@ -1,25 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Package, Users } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-// Datos de ejemplo para artículos
-const articulosData = {
-  1: { nombre: "Shampoo Axion" },
-  2: { nombre: "Laptop HP Pavilion" },
-  3: { nombre: "Monitor LG 24ML44" },
-  4: { nombre: "Resma Papel A4" },
-  5: { nombre: "Silla Ergonómica Pro" },
-  6: { nombre: "Bolígrafos Pack x10" },
-  7: { nombre: "Escritorio Ejecutivo" },
-  8: { nombre: "Grapadora Metálica" },
-  9: { nombre: "Teclado Logitech" },
-  10: { nombre: "Mouse Óptico" },
+// Tipo para el artículo basado en la entidad del backend
+  interface Articulo {
+    id: number
+    costoAlmacenamiento: number
+    demanda: number
+    descripcionArt: string
+    fhBajaArticulo: string | null
+    inventarioMaxArticulo: number
+    nombre: string
+    precioUnitario: number
+    proximaRevision: string | null
+    puntoPedido: number | null
+    stock: number
+    tiempoFijo: number | null
+  }
+
+interface Proveedor {
+  idProveedor: number
+  nombreProveedor: string
 }
 
 // Datos de ejemplo para proveedores por artículo
@@ -74,29 +87,76 @@ const proveedoresPorArticulo = {
 }
 
 export default function ListarProveedoresXArticuloPage() {
-  const [articuloId, setArticuloId] = useState("")
-  const [proveedores, setProveedores] = useState<Array<{ id: number; nombre: string }>>([])
-  const [articuloEncontrado, setArticuloEncontrado] = useState<{ nombre: string } | null>(null)
+  const [articulos, setArticulos] = useState<Articulo[]>([])
+  const [articuloSeleccionado, setArticuloSeleccionado] = useState<string>("")
+  const [proveedores, setProveedores] = useState<Proveedor[]>([])
+  const [articuloEncontrado, setArticuloEncontrado] = useState<Articulo | null>(null)
   const [busquedaRealizada, setBusquedaRealizada] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleBuscar = () => {
-    const id = Number(articuloId)
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
 
-    if (!articuloId.trim() || isNaN(id)) {
-      alert("Por favor, ingrese un ID de artículo válido")
+  console.log(proveedores)
+
+  // Cargar artículos desde la API
+  useEffect(() => {
+    const fetchArticulos = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`${API_URL}/ABMArticulo/getAll?soloVigentes=true`)
+
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`)
+        }
+
+        const data: Articulo[] = await response.json()
+        setArticulos(data)
+        setError(null)
+      } catch (err) {
+        console.error("Error al obtener artículos:", err)
+        setError(err instanceof Error ? err.message : "Error desconocido")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchArticulos()
+  }, [API_URL])
+
+  const handleBuscar = async () => {
+    if (!articuloSeleccionado) {
+      alert("Por favor, seleccione un artículo")
       return
     }
 
     setBusquedaRealizada(true)
 
-    // Buscar el artículo
-    const articulo = articulosData[id as keyof typeof articulosData]
+    // Buscar el artículo seleccionado
+    const articulo = articulos.find(art => art.id.toString() === articuloSeleccionado)
 
     if (articulo) {
       setArticuloEncontrado(articulo)
+
       // Buscar proveedores para este artículo
-      const proveedoresDelArticulo = proveedoresPorArticulo[id as keyof typeof proveedoresPorArticulo] || []
-      setProveedores(proveedoresDelArticulo)
+      try {
+        setLoading(true)
+        const response = await fetch(`${API_URL}/ListarProveedoresXArticulo/getProveedoresXArticulo?articuloId=${articuloSeleccionado}`)
+        console.log("articuloSeleccionado: " + articuloSeleccionado)
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`)
+        }
+
+        const data: Proveedor[] = await response.json()
+        setProveedores(data)
+        setError(null)
+      } catch (err) {
+        console.error("Error al obtener proveedores:", err)
+        setError(err instanceof Error ? err.message : "Error desconocido")
+      } finally {
+        setLoading(false)
+      }
     } else {
       setArticuloEncontrado(null)
       setProveedores([])
@@ -104,10 +164,42 @@ export default function ListarProveedoresXArticuloPage() {
   }
 
   const handleLimpiar = () => {
-    setArticuloId("")
+    setArticuloSeleccionado("")
     setProveedores([])
     setArticuloEncontrado(null)
     setBusquedaRealizada(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-400">Cargando artículos...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-red-400 text-2xl">⚠</span>
+            </div>
+            <h3 className="text-xl font-semibold text-slate-300 mb-2">Error al cargar artículos</h3>
+            <p className="text-slate-400 mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()} className="bg-blue-600 hover:bg-blue-700">
+              Reintentar
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -129,17 +221,25 @@ export default function ListarProveedoresXArticuloPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="flex-1 space-y-2">
-              <Label htmlFor="articulo-id" className="text-slate-200 font-medium">
-                ID del Artículo
+              <Label htmlFor="articulo-select" className="text-slate-200 font-medium">
+                Seleccionar Artículo
               </Label>
-              <Input
-                id="articulo-id"
-                type="number"
-                value={articuloId}
-                onChange={(e) => setArticuloId(e.target.value)}
-                placeholder="Ingrese el ID del artículo"
-                className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500"
-              />
+              <Select value={articuloSeleccionado} onValueChange={setArticuloSeleccionado}>
+                <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100 focus:border-green-500 focus:ring-green-500">
+                  <SelectValue placeholder="Seleccione un artículo" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 border-slate-600">
+                  {articulos.map((articulo) => (
+                    <SelectItem 
+                      key={articulo.id} 
+                      value={articulo.id.toString()}
+                      className="text-slate-100 hover:bg-slate-600 focus:bg-slate-600"
+                    >
+                      {articulo.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex gap-2">
               <Button
@@ -186,14 +286,14 @@ export default function ListarProveedoresXArticuloPage() {
                         <TableBody>
                           {proveedores.map((proveedor, index) => (
                             <TableRow
-                              key={proveedor.id}
+                              key={proveedor.idProveedor}
                               className={`
                                 ${index % 2 === 0 ? "bg-slate-800" : "bg-slate-750"} 
                                 hover:bg-slate-700 border-slate-600 transition-colors
                               `}
                             >
-                              <TableCell className="text-slate-300 font-mono">{proveedor.id}</TableCell>
-                              <TableCell className="text-slate-100 font-medium">{proveedor.nombre}</TableCell>
+                              <TableCell className="text-slate-300 font-mono">{proveedor.idProveedor}</TableCell>
+                              <TableCell className="text-slate-100 font-medium">{proveedor.nombreProveedor}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -211,7 +311,7 @@ export default function ListarProveedoresXArticuloPage() {
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                           <span className="text-slate-300">Artículo ID: </span>
-                          <span className="text-blue-400 font-semibold">{articuloId}</span>
+                          <span className="text-blue-400 font-semibold">{articuloEncontrado.id}</span>
                         </div>
                       </div>
                     </div>
@@ -233,8 +333,8 @@ export default function ListarProveedoresXArticuloPage() {
                 <div className="text-center">
                   <Package className="w-16 h-16 text-slate-600 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-slate-300 mb-2">Artículo no encontrado</h3>
-                  <p className="text-slate-400">No se encontró ningún artículo con el ID "{articuloId}".</p>
-                  <p className="text-slate-500 text-sm mt-2">Verifique que el ID sea correcto e intente nuevamente.</p>
+                  <p className="text-slate-400">No se encontró el artículo seleccionado.</p>
+                  <p className="text-slate-500 text-sm mt-2">Verifique la selección e intente nuevamente.</p>
                 </div>
               </CardContent>
             </Card>
@@ -253,22 +353,17 @@ export default function ListarProveedoresXArticuloPage() {
           </CardHeader>
           <CardContent>
             <div className="text-sm text-slate-400 space-y-2">
-              <p>• Ingrese el ID numérico del artículo que desea consultar</p>
+              <p>• Seleccione un artículo de la lista desplegable</p>
               <p>• Haga clic en "Buscar" para obtener la lista de proveedores</p>
               <p>• La tabla mostrará el ID y nombre de cada proveedor que suministra el artículo</p>
               <p>• Use "Limpiar" para realizar una nueva búsqueda</p>
             </div>
 
             <div className="mt-4 p-3 bg-slate-700 rounded-lg">
-              <h4 className="text-slate-200 font-medium mb-2">IDs de ejemplo disponibles:</h4>
-              <div className="text-xs text-slate-400 grid grid-cols-2 md:grid-cols-5 gap-1">
-                {Object.entries(articulosData).map(([id, articulo]) => (
-                  <div key={id} className="flex items-center gap-1">
-                    <span className="text-green-400 font-mono">{id}:</span>
-                    <span className="truncate">{articulo.nombre}</span>
-                  </div>
-                ))}
-              </div>
+              <h4 className="text-slate-200 font-medium mb-2">Artículos disponibles: {articulos.length}</h4>
+              <p className="text-xs text-slate-400">
+                Se muestran todos los artículos vigentes del sistema.
+              </p>
             </div>
           </CardContent>
         </Card>
