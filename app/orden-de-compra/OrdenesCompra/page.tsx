@@ -20,7 +20,7 @@ export default function OrdenesCompra() {
         console.error("Error al obtener órdenes")
         return
       }
-      const data = await response.json()
+      const data : OrdenDeCompra[] = await response.json()
       setOrdenes(data)
     }
 

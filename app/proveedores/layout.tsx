@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator"
 const menuItems = [
   {
     title: "ABM Proveedor",
-    url: "/proveedores/abm-proveedor",
+    url: "/proveedores/ABMProveedor",
     icon: Settings,
     description: "Administrar proveedores del sistema",
     available: true,

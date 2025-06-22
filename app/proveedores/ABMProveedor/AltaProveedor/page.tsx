@@ -14,6 +14,8 @@ export default function AltaProveedorPage() {
   const [nombre, setNombre] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -28,9 +30,11 @@ export default function AltaProveedorPage() {
     try {
       // Aquí iría la lógica para agregar el proveedor
       console.log("Agregando proveedor:", { nombre: nombre.trim() })
-
+      
       // Simulamos una llamada a la API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await fetch(`${API_URL}/ABMProveedor/alta?nombreProveedor=${nombre.trim()}`, {
+        method: "POST"
+      })
 
       alert(`Proveedor "${nombre.trim()}" agregado exitosamente`)
 
@@ -43,6 +47,7 @@ export default function AltaProveedorPage() {
       setIsLoading(false)
     }
   }
+  
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">

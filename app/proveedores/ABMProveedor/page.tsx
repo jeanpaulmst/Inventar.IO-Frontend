@@ -80,11 +80,57 @@ export default function ABMProveedorPage() {
     ? proveedores?.filter((provider) => provider.fhBajaProveedor === null)
     : proveedores
 
-  const handleEliminar = (id: number, nombre: string) => {
-    // Aquí iría la lógica para eliminar/dar de baja el proveedor
-    console.log(`Eliminar proveedor ${id}: ${nombre}`)
-    // Por ahora solo mostramos un alert
-    alert(`Funcionalidad de eliminar proveedor "${nombre}" será implementada`)
+  const handleEliminar = async (id: number, nombre: string) => {
+    try {
+      const response = await fetch(`${API_URL}/ABMProveedor/darBaja?idProveedor=${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al eliminar proveedor: ${response.statusText}`);
+      }
+
+      // Actualizar la lista de proveedores después de eliminar
+      const updatedProveedores = proveedores?.map(proveedor => 
+        proveedor.idProveedor === id 
+          ? { ...proveedor, fhBajaProveedor: new Date().toISOString() }
+          : proveedor
+      );
+      setProveedores(updatedProveedores || null);
+
+      console.log(`Proveedor ${id}: ${nombre} eliminado exitosamente`);
+      alert(`Proveedor "${nombre}" eliminado exitosamente`);
+    } catch (error) {
+      console.error('Error al eliminar proveedor:', error);
+      alert(`Error al eliminar proveedor "${nombre}": ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    }
+  }
+
+  // Función para formatear la fecha de baja
+  const formatFechaBaja = (fechaBaja: string | null) => {
+    if (!fechaBaja) return "Activo";
+    
+    try {
+      // Si es un timestamp numérico, convertirlo a Date
+      const fecha = typeof fechaBaja === 'number' 
+        ? new Date(fechaBaja) 
+        : new Date(fechaBaja);
+      
+      return fecha.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return fechaBaja; // Devolver el valor original si hay error
+    }
   }
 
   const handleModificar = (id: number, nombre: string) => {
@@ -159,21 +205,21 @@ export default function ABMProveedorPage() {
                   {(filteredProviders ?? []).length > 0 ? (
                     filteredProviders?.map((provider, index) => (
                       <TableRow
-                        key={provider.idProv}
+                        key={provider.idProveedor}
                         className={`
                           ${index % 2 === 0 ? "bg-slate-800" : "bg-slate-750"} 
                           hover:bg-slate-700 border-slate-600 transition-colors
                         `}
                       >
-                        <TableCell className="text-slate-300 font-mono">{provider.idProv}</TableCell>
+                        <TableCell className="text-slate-300 font-mono">{provider.idProveedor}</TableCell>
                         <TableCell className="text-slate-100 font-medium">{provider.nombreProveedor}</TableCell>
                         <TableCell className={`${provider.fhBajaProveedor ? "text-red-400" : "text-green-400"}`}>
-                          {provider.fhBajaProveedor || "Activo"}
+                          {formatFechaBaja(provider.fhBajaProveedor)}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
                             <Button
-                              onClick={() => handleModificar(provider.idProv, provider.nombreProveedor)}
+                              onClick={() => handleModificar(provider.idProveedor, provider.nombreProveedor)}
                               size="sm"
                               variant="outline"
                               className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
@@ -182,10 +228,10 @@ export default function ABMProveedorPage() {
                               Modificar
                             </Button>
                             <Button
-                              onClick={() => handleEliminar(provider.idProv, provider.nombreProveedor)}
+                              onClick={provider.fhBajaProveedor ? undefined : () => handleEliminar(provider.idProveedor, provider.nombreProveedor)}
                               size="sm"
                               variant="outline"
-                              className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1"
+                              className={`bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1 ${provider.fhBajaProveedor ? "bg-slate-600 cursor-not-allowed" : ""}`}
                             >
                               <Trash2 className="w-3 h-3" />
                               Eliminar
