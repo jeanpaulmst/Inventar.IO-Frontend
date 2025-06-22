@@ -8,55 +8,58 @@ import { useState, useEffect } from "react"
 import { DTOArticulo } from "@/types"
 import { Checkbox } from "@/components/ui/checkbox"
 
-// Datos de ejemplo para artículos que necesitan reposición
-const articulosAReponer = [
-  { id: 101, nombre: "Laptop HP", precioUnitario: 599.99, stock: 5, puntoPedido: 10 },
-  { id: 102, nombre: "Monitor LG", precioUnitario: 149.99, stock: 8, puntoPedido: 15 },
-  { id: 201, nombre: "Resma Papel A4", precioUnitario: 5.99, stock: 25, puntoPedido: 50 },
-  { id: 202, nombre: "Bolígrafos Pack", precioUnitario: 3.5, stock: 12, puntoPedido: 30 },
-  { id: 301, nombre: "Silla Ergonómica", precioUnitario: 129.99, stock: 3, puntoPedido: 8 },
-  { id: 302, nombre: "Escritorio", precioUnitario: 199.5, stock: 2, puntoPedido: 5 },
-  { id: 105, nombre: "Auriculares Sony", precioUnitario: 89.99, stock: 7, puntoPedido: 15 },
-  { id: 204, nombre: "Grapadora", precioUnitario: 8.75, stock: 4, puntoPedido: 10 },
-  { id: 305, nombre: "Archivador", precioUnitario: 149.99, stock: 1, puntoPedido: 5 },
-  { id: 304, nombre: "Lámpara de Escritorio", precioUnitario: 34.99, stock: 6, puntoPedido: 12 },
-]
+
 
 export default function ListarArticulosAReponerPage() {
 
     const [filtrarPorPuntoPedido, setFiltrarPorPuntoPedido] = useState(true)
-    const [filtrarPorStockSeguridad, setFiltrarPorStockSeguridad] = useState(!filtrarPorPuntoPedido)
+    const [filtrarPorStockSeguridad, setFiltrarPorStockSeguridad] = useState(false)
     const [articulos, setArticulos] = useState<DTOArticulo[] | null>(null);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    
+
+    const API_URL_REPONER = "http://localhost:8080/ListarProductosAReponer";
+    const API_URL_FALTANTES = "http://localhost:8080/ListarProductosFaltantes";
 
     useEffect(() => {
         const fetchArticulosAReponer = async () => {
-            const response = await fetch(`${API_URL}/ListarProductosAReponer/getArticulosAReponer`);
+            try {
+                const response = await fetch(`${API_URL_REPONER}/getArticulosAReponer`);
 
-            if (!response.ok) {
-                throw new Error("Error al obtener los artículos a reponer");
+                if (!response.ok) {
+                    throw new Error("Error al obtener los artículos a reponer");
+                }
+
+                const data : DTOArticulo[] = await response.json();
+                setArticulos(data);
+                console.log("Artículos a reponer:", data);
+            } catch (error) {
+                console.error("Error fetching artículos a reponer:", error);
             }
-
-            const data : DTOArticulo[] = await response.json();
-            setArticulos(data);
-            console.log("Artículos a reponer:", data);
         }
 
         const fetchArticulosFaltantes = async () => {
-            const response = await fetch(`${API_URL}/ListarProductosFaltantes/getArticulosFaltantes`);
+            try {
+                const response = await fetch(`${API_URL_FALTANTES}/getArticulosFaltantes`);
 
-            if (!response.ok) {
-                throw new Error("Error al obtener los artículos faltantes");
+                if (!response.ok) {
+                    throw new Error("Error al obtener los artículos faltantes");
+                }
+
+                const data : DTOArticulo[] = await response.json();
+                setArticulos(data);
+                console.log("Artículos faltantes:", data);
+            } catch (error) {
+                console.error("Error fetching artículos faltantes:", error);
             }
-
-            const data : DTOArticulo[] = await response.json();
-            setArticulos(data);
-            console.log("Artículos faltantes:", data);
         }
 
-        filtrarPorPuntoPedido ? fetchArticulosAReponer() : fetchArticulosFaltantes();
-    }, []);
+        if (filtrarPorPuntoPedido) {
+            fetchArticulosAReponer();
+        } else if (filtrarPorStockSeguridad) {
+            fetchArticulosFaltantes();
+        }
+    }, [filtrarPorPuntoPedido, filtrarPorStockSeguridad]);
 
  
   // Aplicar filtros
@@ -72,13 +75,13 @@ export default function ListarArticulosAReponerPage() {
 
 
   // Calcular estadísticas
-  const totalArticulos = articulosAReponer.length
-  const valorTotalInventario = articulosAReponer.reduce(
+  const totalArticulos = articulosFiltrados.length
+  const valorTotalInventario = articulosFiltrados.reduce(
     (total, articulo) => total + articulo.precioUnitario * articulo.stock,
     0,
   )
-  const articulosCriticos = articulos?.filter((articulo) => articulo.stock < articulo.stockSeguridad).length
-  const articulosBajos = articulos?.filter(
+  const articulosCriticos = articulosFiltrados.filter((articulo) => articulo.stock < articulo.stockSeguridad).length
+  const articulosBajos = articulosFiltrados.filter(
     (articulo) => articulo.stock >= articulo.stockSeguridad && articulo.stock < articulo.puntoPedido,
   ).length
 
