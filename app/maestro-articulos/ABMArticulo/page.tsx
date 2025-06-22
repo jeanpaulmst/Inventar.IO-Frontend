@@ -12,6 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -25,10 +32,20 @@ interface Articulo {
   nombre: string
   precioUnitario: number
   stock: number
+  proveedorPredeterminado?: number // ID del proveedor predeterminado
+}
+
+// Tipo para el proveedor
+interface Proveedor {
+  idProveedor: number
+  nombreProveedor: string
+  fhBajaProveedor: string | null
 }
 
 export default function ABMArticuloPage() {
   const [articulos, setArticulos] = useState<Articulo[]>([])
+  const [todosLosArticulos, setTodosLosArticulos] = useState<Articulo[]>([])
+  const [proveedores, setProveedores] = useState<Proveedor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -36,11 +53,13 @@ export default function ABMArticuloPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
+  const API_URL = "http://localhost:8080/ABMArticulo"
+
   // Función para obtener artículos del backend
   const fetchArticulos = async () => {
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:8080/ABMArticulo/getAll?soloVigentes=false")
+      const response = await fetch(`${API_URL}/getAll?soloVigentes=false`)
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`)
@@ -48,6 +67,7 @@ export default function ABMArticuloPage() {
 
       const data: Articulo[] = await response.json()
       setArticulos(data)
+      setTodosLosArticulos(data)
       setError(null)
     } catch (err) {
       console.error("Error al obtener artículos:", err)
@@ -57,9 +77,28 @@ export default function ABMArticuloPage() {
     }
   }
 
-  // Cargar artículos al montar el componente
+  // Función para obtener proveedores del backend
+  const fetchProveedores = async () => {
+    try {
+      const response = await fetch(`${API_URL}/getProveedores?soloVigentes=true`)
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
+
+      const data: Proveedor[] = await response.json()
+      setProveedores(data)
+    } catch (err) {
+      console.error("Error al obtener proveedores:", err)
+    }
+  }
+
+  // Cargar artículos y proveedores al montar el componente
   useEffect(() => {
-    fetchArticulos()
+    const loadData = async () => {
+      await Promise.all([fetchArticulos(), fetchProveedores()])
+    }
+    loadData()
   }, [])
 
   const handleEliminar = (articulo: Articulo) => {
@@ -67,12 +106,16 @@ export default function ABMArticuloPage() {
     setShowDeleteModal(true)
   }
 
+  const handleProveedor = (articuloId: number) => {
+    router.push(`/maestro-articulos/ABMArticulo/AsignarProveedor/${articuloId}`)
+  }
+
   const handleConfirmDelete = async () => {
     if (!selectedArticulo) return
 
     setIsDeleting(true)
     try {
-      const response = await fetch(`http://localhost:8080/ABMArticulo/baja/${selectedArticulo.id}`, {
+      const response = await fetch(`${API_URL}/baja/${selectedArticulo.id}`, {
         method: "PUT",
       })
 
@@ -109,6 +152,30 @@ export default function ABMArticuloPage() {
   const articulosActivos = articulos.filter((art) => art.fhBajaArticulo === null).length
   const articulosDadosBaja = articulos.filter((art) => art.fhBajaArticulo !== null).length
   const valorTotalInventario = articulos.reduce((total, art) => total + art.precioUnitario * art.stock, 0)
+
+  // Función para formatear la fecha de baja
+  const formatFechaBaja = (fechaBaja: string | null) => {
+    if (!fechaBaja) return "Activo";
+    
+    try {
+      // Si es un timestamp numérico, convertirlo a Date
+      const fecha = typeof fechaBaja === 'number' 
+        ? new Date(fechaBaja) 
+        : new Date(fechaBaja);
+      
+      return fecha.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return fechaBaja; // Devolver el valor original si hay error
+    }
+  }
 
   if (loading) {
     return (
@@ -180,6 +247,7 @@ export default function ABMArticuloPage() {
                   <TableHead className="text-blue-200 font-semibold">Nombre</TableHead>
                   <TableHead className="text-blue-200 font-semibold">Precio Unitario</TableHead>
                   <TableHead className="text-blue-200 font-semibold">Stock</TableHead>
+                  <TableHead className="text-blue-200 font-semibold">Proveedor</TableHead>
                   <TableHead className="text-blue-200 font-semibold text-center">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -201,7 +269,7 @@ export default function ABMArticuloPage() {
                         {articulo.descripcionArt}
                       </TableCell>
                       <TableCell className={`${articulo.fhBajaArticulo ? "text-red-400" : "text-green-400"}`}>
-                        {articulo.fhBajaArticulo || "Activo"}
+                        {formatFechaBaja(articulo.fhBajaArticulo)}
                       </TableCell>
                       <TableCell className="text-purple-400 font-semibold">{articulo.inventarioMaxArticulo}</TableCell>
                       <TableCell className="text-slate-100 font-medium">{articulo.nombre}</TableCell>
@@ -220,21 +288,46 @@ export default function ABMArticuloPage() {
                         {articulo.stock}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-center gap-2">
+                        {articulo.proveedorPredeterminado ? (
+                          <span className="text-slate-300">{proveedores.find(p => p.idProveedor === articulo.proveedorPredeterminado)?.nombreProveedor}</span>
+                        ) : (
                           <Button
-                            onClick={() => handleModificar(articulo.id)}
+                            onClick={() => handleProveedor(articulo.id)}
                             size="sm"
                             variant="outline"
                             className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
                           >
                             <Edit className="w-3 h-3" />
+                            Asignar Proveedor
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            onClick={articulo.fhBajaArticulo ? undefined : () => handleModificar(articulo.id)}
+                            size="sm"
+                            variant="outline"
+                            className={`${
+                              articulo.fhBajaArticulo !== null 
+                                ? "bg-slate-600 text-slate-400 border-slate-600 cursor-not-allowed" 
+                                : "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700"
+                            } flex items-center gap-1`}
+                            title={articulo.fhBajaArticulo !== null ? "No se puede modificar un artículo dado de baja" : ""}
+                          >
+                            <Edit className="w-3 h-3" />
                             Modificar
                           </Button>
                           <Button
-                            onClick={() => handleEliminar(articulo)}
+                            onClick={articulo.fhBajaArticulo ? undefined : () => handleEliminar(articulo)}
                             size="sm"
                             variant="outline"
-                            className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1"
+                            className={`${
+                              articulo.fhBajaArticulo !== null 
+                                ? "bg-slate-600 text-slate-400 border-slate-600 cursor-not-allowed" 
+                                : "bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+                            } flex items-center gap-1`}
+                            title={articulo.fhBajaArticulo !== null ? "Este artículo ya está dado de baja" : ""}
                           >
                             <Trash2 className="w-3 h-3" />
                             Eliminar
@@ -245,7 +338,7 @@ export default function ABMArticuloPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center text-slate-400 py-8">
+                    <TableCell colSpan={10} className="text-center text-slate-400 py-8">
                       No hay artículos registrados
                     </TableCell>
                   </TableRow>
@@ -259,7 +352,7 @@ export default function ABMArticuloPage() {
             <div className="flex flex-wrap gap-6 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                <span className="text-slate-300">Total de artículos: </span>
+                <span className="text-slate-300">Total en sistema: </span>
                 <span className="text-blue-400 font-semibold">{totalArticulos}</span>
               </div>
               <div className="flex items-center gap-2">
