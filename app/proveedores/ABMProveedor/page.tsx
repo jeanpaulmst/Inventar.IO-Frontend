@@ -228,10 +228,10 @@ export default function ABMProveedorPage() {
                               Modificar
                             </Button>
                             <Button
-                              onClick={() => handleEliminar(provider.idProveedor, provider.nombreProveedor)}
+                              onClick={provider.fhBajaProveedor ? undefined : () => handleEliminar(provider.idProveedor, provider.nombreProveedor)}
                               size="sm"
                               variant="outline"
-                              className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1"
+                              className={`bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1 ${provider.fhBajaProveedor ? "bg-slate-600 cursor-not-allowed" : ""}`}
                             >
                               <Trash2 className="w-3 h-3" />
                               Eliminar

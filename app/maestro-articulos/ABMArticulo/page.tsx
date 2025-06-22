@@ -12,6 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -25,10 +32,19 @@ interface Articulo {
   nombre: string
   precioUnitario: number
   stock: number
+  proveedorPredeterminado?: number // ID del proveedor predeterminado
+}
+
+// Tipo para el proveedor
+interface Proveedor {
+  idProveedor: number
+  nombreProveedor: string
+  fhBajaProveedor: string | null
 }
 
 export default function ABMArticuloPage() {
   const [articulos, setArticulos] = useState<Articulo[]>([])
+  const [proveedores, setProveedores] = useState<Proveedor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -36,11 +52,13 @@ export default function ABMArticuloPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
+
   // Función para obtener artículos del backend
   const fetchArticulos = async () => {
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:8080/ABMArticulo/getAll?soloVigentes=false")
+      const response = await fetch(`${API_URL}/ABMArticulo/getAll?soloVigentes=false`)
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`)
@@ -57,14 +75,37 @@ export default function ABMArticuloPage() {
     }
   }
 
-  // Cargar artículos al montar el componente
+  // Función para obtener proveedores del backend
+  const fetchProveedores = async () => {
+    try {
+      const response = await fetch(`${API_URL}/ABMProveedor/getProveedores?soloVigentes=true`)
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`)
+      }
+
+      const data: Proveedor[] = await response.json()
+      setProveedores(data)
+    } catch (err) {
+      console.error("Error al obtener proveedores:", err)
+    }
+  }
+
+  // Cargar artículos y proveedores al montar el componente
   useEffect(() => {
-    fetchArticulos()
+    const loadData = async () => {
+      await Promise.all([fetchArticulos(), fetchProveedores()])
+    }
+    loadData()
   }, [])
 
   const handleEliminar = (articulo: Articulo) => {
     setSelectedArticulo(articulo)
     setShowDeleteModal(true)
+  }
+
+  const handleProveedor = (articuloId: number) => {
+    router.push(`/maestro-articulos/ABMArticulo/AsignarProveedor/${articuloId}`)
   }
 
   const handleConfirmDelete = async () => {
@@ -180,6 +221,7 @@ export default function ABMArticuloPage() {
                   <TableHead className="text-blue-200 font-semibold">Nombre</TableHead>
                   <TableHead className="text-blue-200 font-semibold">Precio Unitario</TableHead>
                   <TableHead className="text-blue-200 font-semibold">Stock</TableHead>
+                  <TableHead className="text-blue-200 font-semibold">Proveedor</TableHead>
                   <TableHead className="text-blue-200 font-semibold text-center">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -220,6 +262,21 @@ export default function ABMArticuloPage() {
                         {articulo.stock}
                       </TableCell>
                       <TableCell>
+                        {articulo.proveedorPredeterminado ? (
+                          <span className="text-slate-300">{proveedores.find(p => p.idProveedor === articulo.proveedorPredeterminado)?.nombreProveedor}</span>
+                        ) : (
+                          <Button
+                            onClick={() => handleProveedor(articulo.id)}
+                            size="sm"
+                            variant="outline"
+                            className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
+                          >
+                            <Edit className="w-3 h-3" />
+                            Asignar Proveedor
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center justify-center gap-2">
                           <Button
                             onClick={() => handleModificar(articulo.id)}
@@ -245,7 +302,7 @@ export default function ABMArticuloPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center text-slate-400 py-8">
+                    <TableCell colSpan={10} className="text-center text-slate-400 py-8">
                       No hay artículos registrados
                     </TableCell>
                   </TableRow>
