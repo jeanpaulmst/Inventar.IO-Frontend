@@ -1,61 +1,79 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect } from "react"
-import { Plus, Package, RefreshCw } from "lucide-react"
+import { useState } from "react"
+import { Plus, Package } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
-// Tipos
-interface DTOVenta {
-  id: number
-  monto: number
-  fechaAlta: string
-  cantidadArticulos: number
-}
+// Datos de ejemplo para ventas generadas
+const ventasGeneradas = [
+  {
+    id: 3001,
+    monto: 15750.5,
+    fechaAlta: "2024-12-15 10:30:00",
+    cantidadArticulos: 3,
+  },
+  {
+    id: 3002,
+    monto: 89250.75,
+    fechaAlta: "2024-12-15 14:15:00",
+    cantidadArticulos: 5,
+  },
+  {
+    id: 3003,
+    monto: 2850.0,
+    fechaAlta: "2024-12-15 16:45:00",
+    cantidadArticulos: 2,
+  },
+  {
+    id: 3004,
+    monto: 45600.25,
+    fechaAlta: "2024-12-14 09:20:00",
+    cantidadArticulos: 4,
+  },
+  {
+    id: 3005,
+    monto: 12300.0,
+    fechaAlta: "2024-12-14 11:50:00",
+    cantidadArticulos: 1,
+  },
+  {
+    id: 3006,
+    monto: 7890.5,
+    fechaAlta: "2024-12-14 15:30:00",
+    cantidadArticulos: 6,
+  },
+  {
+    id: 3007,
+    monto: 156780.0,
+    fechaAlta: "2024-12-13 08:45:00",
+    cantidadArticulos: 8,
+  },
+  {
+    id: 3008,
+    monto: 3450.75,
+    fechaAlta: "2024-12-13 12:15:00",
+    cantidadArticulos: 2,
+  },
+  {
+    id: 3009,
+    monto: 67890.25,
+    fechaAlta: "2024-12-13 17:00:00",
+    cantidadArticulos: 7,
+  },
+  {
+    id: 3010,
+    monto: 23456.5,
+    fechaAlta: "2024-12-12 13:30:00",
+    cantidadArticulos: 3,
+  },
+]
 
 export default function GenerarVentaPage() {
-  const [ventas, setVentas] = useState<DTOVenta[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL
-
-  // Cargar ventas desde la API
-  const fetchVentas = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await fetch(`${API_URL}/generarVenta/traerTodos`)
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
-      }
-
-      const data: DTOVenta[] = await response.json()
-      setVentas(data || [])
-    } catch (err) {
-      console.error("Error al cargar ventas:", err)
-      setError(err instanceof Error ? err.message : "Error desconocido")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Cargar ventas al montar el componente
-  useEffect(() => {
-    fetchVentas()
-  }, [API_URL])
-
-  // Función para refrescar datos
-  const handleRefresh = async () => {
-    setRefreshing(true)
-    await fetchVentas()
-    setRefreshing(false)
-  }
+  const [ventas] = useState(ventasGeneradas)
 
   // Formatear fecha para mostrar
   const formatearFecha = (fechaString: string) => {
@@ -75,39 +93,6 @@ export default function GenerarVentaPage() {
   const promedioVenta = totalVentas > 0 ? montoTotal / totalVentas : 0
   const totalArticulos = ventas.reduce((total, venta) => total + venta.cantidadArticulos, 0)
 
-  if (loading) {
-    return (
-      <div className="flex flex-1 flex-col gap-4 p-4 bg-slate-900 min-h-screen">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-400">Cargando ventas...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-1 flex-col gap-4 p-4 bg-slate-900 min-h-screen">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-400 text-2xl">⚠</span>
-            </div>
-            <h3 className="text-xl font-semibold text-slate-300 mb-2">Error al cargar ventas</h3>
-            <p className="text-slate-400 mb-4">{error}</p>
-            <Button onClick={handleRefresh} className="bg-orange-600 hover:bg-orange-700">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Reintentar
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 bg-slate-900 min-h-screen">
       {/* Header */}
@@ -117,23 +102,12 @@ export default function GenerarVentaPage() {
           <p className="text-slate-400">Gestión y registro de ventas realizadas</p>
         </div>
 
-        <div className="flex gap-2">
-          <Button 
-            onClick={handleRefresh} 
-            disabled={refreshing}
-            variant="outline" 
-            className="border-slate-600 text-slate-300 hover:bg-slate-700"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Actualizando...' : 'Actualizar'}
+        <Link href="/ventas/NuevaVenta">
+          <Button className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Nueva Venta
           </Button>
-          <Link href="/ventas/NuevaVenta">
-            <Button className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Nueva Venta
-            </Button>
-          </Link>
-        </div>
+        </Link>
       </div>
 
       {/* Tabla de ventas */}
@@ -141,7 +115,7 @@ export default function GenerarVentaPage() {
         <CardHeader className="bg-gradient-to-r from-orange-900 to-slate-800 rounded-t-lg">
           <CardTitle className="text-2xl text-orange-100 flex items-center gap-2">
             <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-            Historial de Ventas ({totalVentas} ventas)
+            Historial de Ventas
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6 bg-slate-800">
@@ -207,11 +181,6 @@ export default function GenerarVentaPage() {
                     <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                     <span className="text-slate-300">Ticket promedio: </span>
                     <span className="text-blue-400 font-semibold">${promedioVenta.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                    <span className="text-slate-300">Total artículos vendidos: </span>
-                    <span className="text-purple-400 font-semibold">{totalArticulos}</span>
                   </div>
                 </div>
               </div>

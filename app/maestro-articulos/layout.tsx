@@ -4,19 +4,7 @@ import type React from "react"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  ArrowLeft,
-  Settings,
-  List,
-  AlertTriangle,
-  Plus,
-  Edit,
-  BarChart3,
-  Tags,
-  Search,
-  Calculator,
-  Package,
-} from "lucide-react"
+import { ArrowLeft, Settings, List, AlertTriangle, Plus, Edit, BarChart3, Tags, Search, Calculator } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -35,17 +23,17 @@ import { Separator } from "@/components/ui/separator"
 
 const menuItems = [
   {
+    title: "Articulos",
+    url: "/maestro-articulos/CalcularCGI",
+    icon: Calculator,
+    description: "Listado de todos los articulos vigentes",
+    available: true,
+  },
+  {
     title: "ABM Artículo",
     url: "/maestro-articulos/ABMArticulo",
     icon: Settings,
     description: "Administrar artículos del inventario",
-    available: true,
-  },
-  {
-    title: "ABM Modelo de Inventario",
-    url: "/maestro-articulos/ABMModeloInventario",
-    icon: Package,
-    description: "Administrar modelos de inventario",
     available: true,
   },
   {
@@ -56,17 +44,10 @@ const menuItems = [
     available: true,
   },
   {
-    title: "Artículos a Reponer-Faltantes",
+    title: "Artículos a Reponer",
     url: "/maestro-articulos/ListarArticulosAReponer-Faltantes",
     icon: AlertTriangle,
     description: "Ver artículos que necesitan reposición",
-    available: true,
-  },
-  {
-    title: "Calcular CGI",
-    url: "/maestro-articulos/CalcularCGI",
-    icon: Calculator,
-    description: "Calcular CGI de artículos",
     available: true,
   },
   {
@@ -192,4 +173,3 @@ export default function MaestroArticulosLayout({
     </div>
   )
 }
-

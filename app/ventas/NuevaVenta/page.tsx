@@ -1,27 +1,77 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Plus, Trash2, Save, ShoppingCart, Loader2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Save, ShoppingCart } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "sonner"
 
-// Tipos
-interface Articulo {
-  id: number
-  costoAlmacenamiento: number
-  demanda: number
-  descripcionArt: string
-  inventarioMaxArticulo: number
-  nombre: string
-  precioUnitario: number
-  stock: number
-}
+// Datos de ejemplo para artículos disponibles
+const articulosDisponibles = [
+  {
+    id: 1,
+    nombre: "Shampoo Axion",
+    precio: 2250.3,
+    stock: 100,
+  },
+  {
+    id: 2,
+    nombre: "Laptop HP Pavilion",
+    precio: 45999.99,
+    stock: 15,
+  },
+  {
+    id: 3,
+    nombre: "Monitor LG 24ML44",
+    precio: 12500.0,
+    stock: 30,
+  },
+  {
+    id: 4,
+    nombre: "Resma Papel A4",
+    precio: 450.0,
+    stock: 200,
+  },
+  {
+    id: 5,
+    nombre: "Silla Ergonómica Pro",
+    precio: 8750.5,
+    stock: 8,
+  },
+  {
+    id: 6,
+    nombre: "Bolígrafos Pack x10",
+    precio: 280.0,
+    stock: 150,
+  },
+  {
+    id: 7,
+    nombre: "Escritorio Ejecutivo",
+    precio: 15999.0,
+    stock: 8,
+  },
+  {
+    id: 8,
+    nombre: "Teclado Logitech",
+    precio: 3450.75,
+    stock: 25,
+  },
+  {
+    id: 9,
+    nombre: "Mouse Óptico",
+    precio: 1250.5,
+    stock: 50,
+  },
+  {
+    id: 10,
+    nombre: "Auriculares Sony",
+    precio: 5890.25,
+    stock: 20,
+  },
+]
 
 interface LineaVenta {
   id: string
@@ -30,51 +80,8 @@ interface LineaVenta {
   subtotal: number
 }
 
-interface DTODetalleGenerarVenta {
-  articuloID: number
-  cantidad: number
-  subTotal: number
-}
-
-interface DTOGenerarVenta {
-  detalles: DTODetalleGenerarVenta[]
-  total: number
-}
-
 export default function NuevaVentaPage() {
-  const [articulos, setArticulos] = useState<Articulo[]>([])
   const [lineasVenta, setLineasVenta] = useState<LineaVenta[]>([])
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL
-
-  // Cargar artículos desde la API
-  useEffect(() => {
-    const fetchArticulos = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const response = await fetch(`${API_URL}/ABMArticulo/getAll?soloVigentes=true`)
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`)
-        }
-
-        const data: Articulo[] = await response.json()
-        setArticulos(data || [])
-      } catch (err) {
-        console.error("Error al cargar artículos:", err)
-        setError(err instanceof Error ? err.message : "Error desconocido")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchArticulos()
-  }, [API_URL])
 
   const agregarLinea = () => {
     const nuevaLinea: LineaVenta = {
@@ -98,9 +105,9 @@ export default function NuevaVentaPage() {
 
           // Calcular subtotal automáticamente si cambia artículo o cantidad
           if (campo === "articuloId" || campo === "cantidad") {
-            const articulo = articulos.find((art) => art.id === lineaActualizada.articuloId)
+            const articulo = articulosDisponibles.find((art) => art.id === lineaActualizada.articuloId)
             if (articulo && lineaActualizada.cantidad > 0) {
-              lineaActualizada.subtotal = articulo.precioUnitario * lineaActualizada.cantidad
+              lineaActualizada.subtotal = articulo.precio * lineaActualizada.cantidad
             }
           }
 
@@ -115,106 +122,46 @@ export default function NuevaVentaPage() {
     return lineasVenta.reduce((total, linea) => total + linea.subtotal, 0)
   }
 
-  const guardarVenta = async () => {
+  const guardarVenta = () => {
     if (lineasVenta.length === 0) {
-      toast.error("Debe agregar al menos un artículo a la venta")
+      alert("Debe agregar al menos un artículo a la venta")
       return
     }
 
     // Validar que todas las líneas tengan artículo seleccionado
     const lineasIncompletas = lineasVenta.filter((linea) => linea.articuloId === 0)
     if (lineasIncompletas.length > 0) {
-      toast.error("Todas las líneas deben tener un artículo seleccionado")
+      alert("Todas las líneas deben tener un artículo seleccionado")
       return
     }
 
     // Validar stock disponible
     for (const linea of lineasVenta) {
-      const articulo = articulos.find((art) => art.id === linea.articuloId)
+      const articulo = articulosDisponibles.find((art) => art.id === linea.articuloId)
       if (articulo && linea.cantidad > articulo.stock) {
-        toast.error(`Stock insuficiente para ${articulo.nombre}. Stock disponible: ${articulo.stock}`)
+        alert(`Stock insuficiente para ${articulo.nombre}. Stock disponible: ${articulo.stock}`)
         return
       }
     }
 
-    try {
-      setSaving(true)
+    const total = calcularTotal()
+    const cantidadArticulos = lineasVenta.length
 
-      // Preparar datos para enviar al backend
-      const detalles: DTODetalleGenerarVenta[] = lineasVenta.map(linea => ({
-        articuloID: linea.articuloId,
-        cantidad: linea.cantidad,
-        subTotal: linea.subtotal
-      }))
+    console.log("Guardando venta:", {
+      lineas: lineasVenta,
+      total,
+      cantidadArticulos,
+      fecha: new Date().toISOString(),
+    })
 
-      const ventaData: DTOGenerarVenta = {
-        detalles: detalles,
-        total: calcularTotal()
-      }
+    alert(`Venta registrada exitosamente!\nTotal: $${total.toLocaleString()}\nArtículos: ${cantidadArticulos}`)
 
-      console.log(JSON.stringify(ventaData))
-
-      // Enviar venta al backend
-      const response = await fetch(`${API_URL}/generarVenta/nueva`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(ventaData),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
-      }
-
-      toast.success(`Venta registrada exitosamente! Total: $${calcularTotal().toLocaleString()}`)
-      
-      // Limpiar formulario y redirigir
-      setLineasVenta([])
-      router.push('/ventas/GenerarVenta')
-      
-    } catch (err) {
-      console.error("Error al guardar venta:", err)
-      toast.error(err instanceof Error ? err.message : "Error al guardar la venta")
-    } finally {
-      setSaving(false)
-    }
+    // Limpiar formulario
+    setLineasVenta([])
   }
 
   const obtenerArticulo = (articuloId: number) => {
-    return articulos.find((art) => art.id === articuloId)
-  }
-
-  if (loading) {
-    return (
-      <div className="flex flex-1 flex-col gap-4 p-4 bg-slate-900 min-h-screen">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-400">Cargando artículos...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-1 flex-col gap-4 p-4 bg-slate-900 min-h-screen">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-400 text-2xl">⚠</span>
-            </div>
-            <h3 className="text-xl font-semibold text-slate-300 mb-2">Error al cargar artículos</h3>
-            <p className="text-slate-400 mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()} className="bg-orange-600 hover:bg-orange-700">
-              Reintentar
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
+    return articulosDisponibles.find((art) => art.id === articuloId)
   }
 
   return (
@@ -283,7 +230,7 @@ export default function NuevaVentaPage() {
                               <SelectValue placeholder="Seleccionar artículo" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-700 border-slate-600">
-                              {articulos.map((articulo) => (
+                              {articulosDisponibles.map((articulo) => (
                                 <SelectItem
                                   key={articulo.id}
                                   value={articulo.id.toString()}
@@ -296,7 +243,7 @@ export default function NuevaVentaPage() {
                           </Select>
                         </TableCell>
                         <TableCell className="text-green-400 font-semibold">
-                          {articulo ? `$${articulo.precioUnitario.toLocaleString()}` : "-"}
+                          {articulo ? `$${articulo.precio.toLocaleString()}` : "-"}
                         </TableCell>
                         <TableCell>
                           <Input
@@ -357,20 +304,10 @@ export default function NuevaVentaPage() {
               </div>
               <Button
                 onClick={guardarVenta}
-                disabled={saving}
                 className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 px-6 py-3 text-lg"
               >
-                {saving ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-5 h-5" />
-                    Guardar Venta
-                  </>
-                )}
+                <Save className="w-5 h-5" />
+                Guardar Venta
               </Button>
             </div>
           </CardContent>
