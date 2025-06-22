@@ -9,50 +9,13 @@ import { DTOProveedor, DTOArticuloProv } from "@/types"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
-// Datos de ejemplo para proveedores
-const providers = [
-  { id: 1, name: "Electrónica Moderna" },
-  { id: 2, name: "Suministros Oficina Plus" },
-  { id: 3, name: "Muebles Confort" },
-]
-
-// Datos de ejemplo para productos por proveedor
-const productsByProvider = {
-  1: [
-    { id: 101, name: "Laptop HP", description: "Laptop HP 15.6 pulgadas 8GB RAM", price: 599.99, stock: 15 },
-    { id: 102, name: "Monitor LG", description: "Monitor LG 24 pulgadas Full HD", price: 149.99, stock: 30 },
-    { id: 103, name: "Teclado Logitech", description: "Teclado inalámbrico Logitech", price: 45.5, stock: 50 },
-    { id: 104, name: "Mouse Óptico", description: "Mouse óptico inalámbrico", price: 22.99, stock: 100 },
-    { id: 105, name: "Auriculares Sony", description: "Auriculares con cancelación de ruido", price: 89.99, stock: 25 },
-  ],
-  2: [
-    { id: 201, name: "Resma Papel A4", description: "Resma de papel 500 hojas", price: 5.99, stock: 200 },
-    { id: 202, name: "Bolígrafos Pack", description: "Pack de 10 bolígrafos azules", price: 3.5, stock: 150 },
-    {
-      id: 203,
-      name: "Carpetas Archivadoras",
-      description: "Carpetas para archivo de documentos",
-      price: 2.99,
-      stock: 80,
-    },
-    { id: 204, name: "Grapadora", description: "Grapadora metálica de oficina", price: 8.75, stock: 45 },
-    { id: 205, name: "Post-it", description: "Bloc de notas adhesivas", price: 1.99, stock: 120 },
-  ],
-  3: [
-    { id: 301, name: "Silla Ergonómica", description: "Silla de oficina ergonómica", price: 129.99, stock: 20 },
-    { id: 302, name: "Escritorio", description: "Escritorio de madera 120x60cm", price: 199.5, stock: 15 },
-    { id: 303, name: "Estantería", description: "Estantería de 5 niveles", price: 89.99, stock: 10 },
-    { id: 304, name: "Lámpara de Escritorio", description: "Lámpara LED para escritorio", price: 34.99, stock: 30 },
-    { id: 305, name: "Archivador", description: "Archivador metálico de 4 cajones", price: 149.99, stock: 8 },
-  ],
-}
 
 // ##### CONCEXIÓN CON EL BACKEND #####
 
 
 export default function ProviderProducts() {
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = "http://localhost:8080/ListarArtículoXProveedor";
 
   const [proveedores, setProveedores] = useState<DTOProveedor[]>([])
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
@@ -62,7 +25,7 @@ export default function ProviderProducts() {
   useEffect(() => {
     const fetchProviders = async () => {
       try {
-        const response = await fetch(`${API_URL}/ListarArtículoXProveedor/GetProveedores`)
+        const response = await fetch(`${API_URL}/GetProveedores`)
 
         if (!response.ok) {
           throw new Error("Error al obtener los proveedores")
@@ -96,7 +59,7 @@ export default function ProviderProducts() {
       if (!selectedProvider) return
 
       try {
-        const response = await fetch(`${API_URL}/ListarArtículoXProveedor/?provId=${selectedProvider}`)
+        const response = await fetch(`${API_URL}/?provId=${selectedProvider}`)
 
         if (!response.ok) {
           throw new Error("Error al obtener los productos del proveedor")
@@ -115,7 +78,7 @@ export default function ProviderProducts() {
   
 
   // Obtener el nombre del proveedor seleccionado
-  const providerName = selectedProvider ? providers.find((p) => p.id === Number.parseInt(selectedProvider))?.name : ""
+  const providerName = selectedProvider ? proveedores.find((p: DTOProveedor) => p.idProv === Number.parseInt(selectedProvider))?.nombreProveedor : ""
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
