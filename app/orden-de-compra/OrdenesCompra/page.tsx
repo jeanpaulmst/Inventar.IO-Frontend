@@ -20,7 +20,7 @@ export default function OrdenesCompra() {
         console.error("Error al obtener órdenes")
         return
       }
-      const data = await response.json()
+      const data : OrdenDeCompra[] = await response.json()
       setOrdenes(data)
     }
 
@@ -93,8 +93,8 @@ export default function OrdenesCompra() {
                   <span className="text-slate-300 text-sm">Artículos:</span>
                 </div>
                 <ul className="list-disc list-inside text-slate-100 text-sm pl-2">
-                  {orden.articulos.map((nombre, idx) => (
-                    <li key={idx}>{nombre}</li>
+                  {orden.articulos?.map((articulo) => (
+                    <li key={articulo.id}>{articulo.nombreArt}</li>
                   ))}
                 </ul>
               </div>
