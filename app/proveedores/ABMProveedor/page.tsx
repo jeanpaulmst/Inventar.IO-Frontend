@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -9,55 +10,14 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DTOProveedor } from "@/types"
 
-// Datos de ejemplo para proveedores
-const providersData = [
-  {
-    id: 1,
-    nombre: "Electrónica Moderna",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 2,
-    nombre: "Suministros Oficina Plus",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 3,
-    nombre: "Muebles Confort",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 4,
-    nombre: "Tecnología Avanzada S.A.",
-    fechaHoraBaja: "2024-01-15 14:30:00",
-  },
-  {
-    id: 5,
-    nombre: "Distribuidora Central",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 6,
-    nombre: "Importaciones del Sur",
-    fechaHoraBaja: "2024-02-20 09:15:00",
-  },
-  {
-    id: 7,
-    nombre: "Comercial Norte",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 8,
-    nombre: "Proveedores Unidos",
-    fechaHoraBaja: "2024-03-10 16:45:00",
-  },
-]
+
 
 export default function ABMProveedorPage() {
   const [showOnlyActive, setShowOnlyActive] = useState(false)
   const [proveedores, setProveedores] = useState<DTOProveedor[] | null>(null)
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProveedores = async () => {
@@ -134,10 +94,15 @@ export default function ABMProveedorPage() {
   }
 
   const handleModificar = (id: number, nombre: string) => {
-    // Aquí iría la lógica para modificar el proveedor
-    console.log(`Modificar proveedor ${id}: ${nombre}`)
-    // Por ahora solo mostramos un alert
-    alert(`Funcionalidad de modificar proveedor "${nombre}" será implementada`)
+    // Buscar el proveedor para verificar su estado
+    const proveedor = proveedores?.find(p => p.idProveedor === id)
+    
+    if (proveedor && proveedor.fhBajaProveedor !== null) {
+      alert(`No se puede modificar el proveedor "${proveedor.nombreProveedor}" porque está dado de baja.`)
+      return
+    }
+    
+    router.push(`/proveedores/ABMProveedor/ModificarProveedor/${id}`)
   }
 
   const handleNuevoProveedor = () => {
@@ -219,10 +184,15 @@ export default function ABMProveedorPage() {
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
                             <Button
-                              onClick={() => handleModificar(provider.idProveedor, provider.nombreProveedor)}
+                              onClick={provider.fhBajaProveedor ? undefined : () => handleModificar(provider.idProveedor, provider.nombreProveedor)}
                               size="sm"
                               variant="outline"
-                              className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
+                              className={`${
+                                provider.fhBajaProveedor !== null 
+                                  ? "bg-slate-600 text-slate-400 border-slate-600 cursor-not-allowed" 
+                                  : "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700"
+                              } flex items-center gap-1`}
+                              title={provider.fhBajaProveedor !== null ? "No se puede modificar un proveedor dado de baja" : ""}
                             >
                               <Edit className="w-3 h-3" />
                               Modificar
@@ -231,7 +201,12 @@ export default function ABMProveedorPage() {
                               onClick={provider.fhBajaProveedor ? undefined : () => handleEliminar(provider.idProveedor, provider.nombreProveedor)}
                               size="sm"
                               variant="outline"
-                              className={`bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1 ${provider.fhBajaProveedor ? "bg-slate-600 cursor-not-allowed" : ""}`}
+                              className={`${
+                                provider.fhBajaProveedor !== null 
+                                  ? "bg-slate-600 text-slate-400 border-slate-600 cursor-not-allowed" 
+                                  : "bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+                              } flex items-center gap-1`}
+                              title={provider.fhBajaProveedor !== null ? "Este proveedor ya está dado de baja" : ""}
                             >
                               <Trash2 className="w-3 h-3" />
                               Eliminar
