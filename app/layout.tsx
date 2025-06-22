@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Inventar.IO - Sistema de Inventario',
+  description: 'Sistema de gestión de inventario y ventas',
   generator: 'v0.dev',
 }
 
