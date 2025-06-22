@@ -28,42 +28,7 @@ const menuItems = [
     icon: Plus,
     description: "Registrar nuevas ventas",
     available: true,
-  },
-  {
-    title: "Historial de Ventas",
-    url: "/ventas/historial",
-    icon: List,
-    description: "Ver historial completo de ventas",
-    available: false,
-  },
-  {
-    title: "Gestión de Clientes",
-    url: "/ventas/clientes",
-    icon: Users,
-    description: "Administrar información de clientes",
-    available: false,
-  },
-  {
-    title: "Reportes de Ventas",
-    url: "/ventas/reportes",
-    icon: BarChart3,
-    description: "Generar reportes detallados",
-    available: false,
-  },
-  {
-    title: "Facturación",
-    url: "/ventas/facturacion",
-    icon: FileText,
-    description: "Generar facturas y comprobantes",
-    available: false,
-  },
-  {
-    title: "Control de Ingresos",
-    url: "/ventas/ingresos",
-    icon: DollarSign,
-    description: "Monitorear ingresos y análisis financiero",
-    available: false,
-  },
+  }
 ]
 
 export default function VentasLayout({
