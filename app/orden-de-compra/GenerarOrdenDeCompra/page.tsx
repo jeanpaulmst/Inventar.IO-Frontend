@@ -2,14 +2,92 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Send, ShoppingCart, AlertTriangle } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Send, ShoppingCart } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import type { Articulo, ArticuloSeleccionado, DTOSugerirOrdenDetalle } from "@/types"
+import { Articulo, ArticuloSeleccionado, DTOSugerirOrdenDetalle } from "@/types"
+
+// Datos de ejemplo para artículos
+const articulosData = [
+  {
+    id: 1,
+    nombre: "Shampoo Axion",
+    proveedorPredeterminado: { id: 1, nombre: "Distribuidora Belleza S.A." },
+    proveedoresDisponibles: [
+      { id: 1, nombre: "Distribuidora Belleza S.A.", precio: 1850.25 },
+      { id: 2, nombre: "Cosméticos del Norte", precio: 1920.0 },
+      { id: 3, nombre: "Importadora Premium", precio: 1780.75 },
+    ],
+  },
+  {
+    id: 2,
+    nombre: "Laptop HP Pavilion",
+    proveedorPredeterminado: { id: 4, nombre: "Tecnología Avanzada" },
+    proveedoresDisponibles: [
+      { id: 4, nombre: "Tecnología Avanzada", precio: 42500.0 },
+      { id: 5, nombre: "Computadoras del Sur", precio: 43200.5 },
+    ],
+  },
+  {
+    id: 3,
+    nombre: "Monitor LG 24ML44",
+    proveedorPredeterminado: { id: 6, nombre: "Electrónica Moderna" },
+    proveedoresDisponibles: [
+      { id: 6, nombre: "Electrónica Moderna", precio: 11800.0 },
+      { id: 7, nombre: "Monitores Express", precio: 12100.25 },
+      { id: 8, nombre: "Pantallas HD", precio: 11650.0 },
+    ],
+  },
+  {
+    id: 4,
+    nombre: "Resma Papel A4",
+    proveedorPredeterminado: { id: 9, nombre: "Suministros Oficina Plus" },
+    proveedoresDisponibles: [
+      { id: 9, nombre: "Suministros Oficina Plus", precio: 450.0 },
+      { id: 10, nombre: "Papelería Central", precio: 465.0 },
+    ],
+  },
+  {
+    id: 5,
+    nombre: "Silla Ergonómica Pro",
+    proveedorPredeterminado: { id: 11, nombre: "Muebles Confort" },
+    proveedoresDisponibles: [
+      { id: 11, nombre: "Muebles Confort", precio: 8750.5 },
+      { id: 12, nombre: "Oficina Total", precio: 8900.0 },
+      { id: 13, nombre: "Ergonomía Pro", precio: 8650.25 },
+    ],
+  },
+  {
+    id: 6,
+    nombre: "Bolígrafos Pack x10",
+    proveedorPredeterminado: { id: 9, nombre: "Suministros Oficina Plus" },
+    proveedoresDisponibles: [
+      { id: 9, nombre: "Suministros Oficina Plus", precio: 280.0 },
+      { id: 14, nombre: "Escritorio y Más", precio: 295.0 },
+    ],
+  },
+  {
+    id: 7,
+    nombre: "Escritorio Ejecutivo",
+    proveedorPredeterminado: { id: 11, nombre: "Muebles Confort" },
+    proveedoresDisponibles: [
+      { id: 11, nombre: "Muebles Confort", precio: 15999.0 },
+      { id: 15, nombre: "Maderas Premium", precio: 16200.0 },
+    ],
+  },
+  {
+    id: 8,
+    nombre: "Grapadora Metálica",
+    proveedorPredeterminado: { id: 9, nombre: "Suministros Oficina Plus" },
+    proveedoresDisponibles: [
+      { id: 9, nombre: "Suministros Oficina Plus", precio: 650.0 },
+      { id: 16, nombre: "Herramientas de Oficina", precio: 675.0 },
+    ],
+  },
+]
 
 interface FilaOrden {
   id: string
@@ -19,71 +97,46 @@ interface FilaOrden {
   cantidad: number
   subtotal: number
   sugerenciaOrden: DTOSugerirOrdenDetalle | null
-  articuloProveedorId: number
-}
-
-interface DetalleOrden {
-  cantidad: number
-  subTotal: number
-  articuloProveedorId: number
-}
-
-interface RespuestaNuevaOrden {
-  ordenesDeCompra: any[] | null
-  nombresPedidos: string[]
 }
 
 export default function GenerarOrdenDeCompraPage() {
   const [filasOrden, setFilasOrden] = useState<FilaOrden[]>([])
-  const [articulos, setArticulos] = useState<Articulo[]>([])
-  const [articuloSeleccionado, setArticuloSeleccionado] = useState<ArticuloSeleccionado | null>(null)
+  const [articulos, setArticulos] = useState<Articulo[]>([]) // Inicializar con datos de ejemplo
+  const [articuloSeleccionado, setArticuloSeleccionado] = useState<ArticuloSeleccionado | null>(null) //Guarda el ID del articulo seleccionado en un momento dado
   const [articulosSeleccionados, setArticulosSeleccionados] = useState<ArticuloSeleccionado[]>([])
   const [sugerenciaOrden, setSugerenciaOrden] = useState<DTOSugerirOrdenDetalle | null>(null)
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [productosExistentes, setProductosExistentes] = useState<string[]>([])
-  const [detallesPendientes, setDetallesPendientes] = useState<DetalleOrden[]>([])
 
-  const BASE_URL = "http://localhost:8080/GenerarOrdenCompra"
-
-  // Busqueda de todos los articulos para mostrarlos en el selector de articulo
+  //Busqueda de todos los articulo para mostrarlos en el selector de articulo
   useEffect(() => {
     const fetchArticulos = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/traerArticulos`)
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/GenerarOrdenCompra/traerArticulos`)
         if (!response.ok) {
-          console.error("Error fetching articulos:", response.statusText)
-          return
+            console.error("Error fetching articulos:", response.statusText)
+            return
         }
         const data = await response.json()
         setArticulos(data)
         console.log("Artículos fetched:", data)
-      } catch (error) {
-        console.error("Error al cargar artículos:", error)
-      }
     }
     fetchArticulos()
   }, [])
 
-  const fetchProveedores = async (articuloId: number): Promise<DTOSugerirOrdenDetalle | null> => {
-    try {
-      const response = await fetch(`${BASE_URL}/sugerirOrden?idArticulo=${articuloId}`)
-      if (!response.ok) {
-        console.error("Error fetching proveedores:", response.statusText)
-        return null
-      }
-      const data: DTOSugerirOrdenDetalle = await response.json()
-      const artSeleccionado = {
-        articuloId: articuloId,
-        sugerenciaOrden: data,
-      }
-      setArticuloSeleccionado(artSeleccionado)
-      setArticulosSeleccionados((prev) => [...prev, artSeleccionado])
-      return data
-    } catch (error) {
-      console.error("Error al obtener proveedores:", error)
-      return null
+  const fetchProveedores = async (articuloId : number) : Promise<DTOSugerirOrdenDetalle | null>=> {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/GenerarOrdenCompra/sugerirOrden?idArticulo=${articuloId}`)
+        if (!response.ok) {
+            console.error("Error fetching proveedores:", response.statusText)
+            return null
+        }
+        const data : DTOSugerirOrdenDetalle = await response.json()
+        const artSeleccionado = {
+            articuloId: articuloId,
+            sugerenciaOrden: data
+        }
+        setArticuloSeleccionado(artSeleccionado)
+        setArticulosSeleccionados((prev) => [...prev, artSeleccionado])
+        return data
     }
-  }
 
   const agregarFila = () => {
     const nuevaFila: FilaOrden = {
@@ -93,8 +146,7 @@ export default function GenerarOrdenDeCompraPage() {
       proveedorNombre: "",
       cantidad: 1,
       subtotal: 0,
-      sugerenciaOrden: null,
-      articuloProveedorId: 0,
+      sugerenciaOrden: null
     }
     setFilasOrden([...filasOrden, nuevaFila])
   }
@@ -103,179 +155,141 @@ export default function GenerarOrdenDeCompraPage() {
     setFilasOrden(filasOrden.filter((fila) => fila.id !== id))
   }
 
-  const actualizarFila = async (id: string, campo: keyof FilaOrden, valor: any) => {
-    let nuevaSugerencia: DTOSugerirOrdenDetalle | null = null
+const actualizarFila = async (id: string, campo: keyof FilaOrden, valor: any) => {
+  let nuevaSugerencia: DTOSugerirOrdenDetalle | null = null;
 
-    // Si se está cambiando el artículo, obtenemos la sugerencia de proveedores
-    if (campo === "articuloId") {
-      const articulo = articulos.find((art) => art.id === Number(valor))
-      if (!articulo) {
-        console.log("No existe este articulo!!!")
-        return
-      }
-
-      nuevaSugerencia = await fetchProveedores(articulo.id)
+  // Si se está cambiando el artículo, obtenemos la sugerencia de proveedores
+  if (campo === "articuloId") {
+    const articulo = articulos.find((art) => art.id === Number(valor));
+    if (!articulo) {
+      console.log("No existe este articulo!!!");
+      return;
     }
 
-    setFilasOrden(
-      filasOrden.map((fila) => {
-        if (fila.id === id) {
-          const filaActualizada = { ...fila, [campo]: valor }
-
-          // Si se cambió el artículo, actualizamos sugerencia y proveedor predeterminado
-          if (campo === "articuloId" && nuevaSugerencia) {
-            filaActualizada.sugerenciaOrden = nuevaSugerencia
-            const proveedorPredeterminado = nuevaSugerencia.proveedores.find((prov) => prov.predeterminado)
-            if (proveedorPredeterminado) {
-              filaActualizada.proveedorId = proveedorPredeterminado.proveedorId
-              filaActualizada.proveedorNombre = proveedorPredeterminado.nombreProvedor
-              filaActualizada.cantidad = nuevaSugerencia.cantidadPredeterminada
-              filaActualizada.articuloProveedorId = proveedorPredeterminado.proveedorId
-            } else {
-              // Si no hay proveedor predeterminado, limpiar valores
-              filaActualizada.proveedorId = 0
-              filaActualizada.proveedorNombre = ""
-              filaActualizada.cantidad = 1
-              filaActualizada.articuloProveedorId = 0
-            }
-          } else {
-            // Si no se cambió el artículo, mantenemos la sugerencia anterior
-            filaActualizada.sugerenciaOrden = fila.sugerenciaOrden
-          }
-
-          // Si elige otro proveedor que no sea el predeterminado
-          if (campo === "proveedorId") {
-            const idProvPredeterminado = fila.sugerenciaOrden?.proveedores.find(
-              (prov) => prov.predeterminado === true,
-            )?.proveedorId
-
-            if (valor !== idProvPredeterminado) {
-              filaActualizada.cantidad = 1
-            } else {
-              filaActualizada.cantidad = fila.sugerenciaOrden?.cantidadPredeterminada ?? 1
-            }
-
-            // Actualizar nombre del proveedor y articuloProveedorId
-            const proveedorSeleccionado = fila.sugerenciaOrden?.proveedores.find(
-              (prov) => prov.proveedorId === Number(valor),
-            )
-            if (proveedorSeleccionado) {
-              filaActualizada.proveedorNombre = proveedorSeleccionado.nombreProvedor
-              filaActualizada.articuloProveedorId = proveedorSeleccionado.proveedorId
-            } else {
-              filaActualizada.proveedorNombre = ""
-              filaActualizada.articuloProveedorId = 0
-            }
-          }
-
-          // Calcular subtotal automáticamente
-          if (["articuloId", "proveedorId", "cantidad"].includes(campo)) {
-            if (filaActualizada.sugerenciaOrden && filaActualizada.proveedorId && filaActualizada.cantidad > 0) {
-              const proveedor = filaActualizada.sugerenciaOrden.proveedores.find(
-                (prov) => prov.proveedorId === filaActualizada.proveedorId,
-              )
-              if (proveedor) {
-                filaActualizada.subtotal = proveedor.costoUnitario * filaActualizada.cantidad
-              }
-            }
-          }
-
-          return filaActualizada
-        }
-        return fila
-      }),
-    )
+    nuevaSugerencia = await fetchProveedores(articulo.id);
   }
+
+  setFilasOrden(
+    filasOrden.map((fila) => {
+      if (fila.id === id) {
+        const filaActualizada = { ...fila, [campo]: valor };
+
+        // Si se cambió el artículo, actualizamos sugerencia y proveedor predeterminado
+        if (campo === "articuloId" && nuevaSugerencia) {
+          filaActualizada.sugerenciaOrden = nuevaSugerencia;
+          const proveedorPredeterminado = nuevaSugerencia.proveedores.find((prov) => prov.predeterminado);
+          filaActualizada.proveedorId = proveedorPredeterminado?.proveedorId ?? 0;
+          filaActualizada.proveedorNombre = proveedorPredeterminado?.nombreProvedor ?? "";
+          filaActualizada.cantidad = nuevaSugerencia.cantidadPredeterminada;
+
+        } else {
+          // Si no se cambió el artículo, mantenemos la sugerencia anterior
+          filaActualizada.sugerenciaOrden = fila.sugerenciaOrden;
+        }
+
+        /* Si elige otro proveedor que no sea el predeterminado, que la cantidad a pedir sea 1*/
+        if(campo === "proveedorId"){
+            const idProvPredetermiando = fila.sugerenciaOrden?.proveedores.find((prov) => prov.predeterminado === true)?.proveedorId
+            if(valor !== idProvPredetermiando){
+                filaActualizada.cantidad = 1;
+            }else{
+                filaActualizada.cantidad = fila.sugerenciaOrden?.cantidadPredeterminada?? 1;
+            }
+        }
+
+        // Calcular subtotal automáticamente
+        if (["articuloId", "proveedorId", "cantidad"].includes(campo)) {
+          const articulo = articulosData.find((art) => art.id === filaActualizada.articuloId);
+          if (articulo && filaActualizada.proveedorId && filaActualizada.cantidad > 0) {
+            const proveedor = articulo.proveedoresDisponibles.find((prov) => prov.id === filaActualizada.proveedorId);
+            if (proveedor) {
+              filaActualizada.subtotal = proveedor.precio * filaActualizada.cantidad;
+            }
+          }
+        }
+
+        return filaActualizada;
+      }
+      return fila;
+    })
+  );
+};
+
 
   const calcularTotal = () => {
     return filasOrden.reduce((total, fila) => total + fila.subtotal, 0)
   }
 
-  const generarOrdenesDeCompra = async (confirmacion = false) => {
+  const generarOrdenesDeCompra = () => {
     if (filasOrden.length === 0) {
       alert("Debe agregar al menos un artículo a la orden")
       return
     }
 
     // Validar que todas las filas estén completas
-    const filasIncompletas = filasOrden.filter(
-      (fila) => fila.articuloId === 0 || fila.proveedorId === 0 || fila.cantidad <= 0,
-    )
+    const filasIncompletas = filasOrden.filter((fila) => fila.articuloId === 0 || fila.proveedorId === 0)
     if (filasIncompletas.length > 0) {
-      alert("Todas las filas deben tener artículo, proveedor seleccionados y cantidad mayor a 0")
+      alert("Todas las filas deben tener artículo y proveedor seleccionados")
       return
     }
 
-    // Validar que todas las filas tengan articuloProveedorId
-    const filasSinArticuloProveedor = filasOrden.filter(
-      (fila) => !fila.articuloProveedorId || fila.articuloProveedorId === 0,
+    // Agrupar por proveedor
+    const ordenesPorProveedor = filasOrden.reduce(
+      (acc, fila) => {
+        const proveedorId = fila.proveedorId
+        if (!acc[proveedorId]) {
+          acc[proveedorId] = []
+        }
+        acc[proveedorId].push(fila)
+        return acc
+      },
+      {} as Record<number, FilaOrden[]>,
     )
-    if (filasSinArticuloProveedor.length > 0) {
-      alert("Error: No se pudo obtener la relación artículo-proveedor. Verifique las selecciones.")
-      return
-    }
 
-    // Preparar los detalles para el endpoint
-    const detalles: DetalleOrden[] = filasOrden.map((fila) => ({
-      cantidad: fila.cantidad,
-      subTotal: fila.subtotal,
-      articuloProveedorId: fila.articuloProveedorId,
-    }))
+    //Iterar el Record ordenesPorProveedor para llenar los DTO de ordenes de compra
+    
+        
 
-    const requestBody = {
-      detalles: detalles,
-      confirmacion: confirmacion,
-    }
+    console.log("ordenesXprov: ", ordenesPorProveedor)
 
-    console.log("Enviando datos al backend:", JSON.stringify(requestBody, null, 2))
+    const cantidadOrdenes = Object.keys(ordenesPorProveedor).length
+    const totalGeneral = calcularTotal()
 
-    try {
-      const response = await fetch("http://localhost:8080/GenerarOrdenCompra/nuevaOrden", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      })
+    console.log("Generando órdenes de compra por proveedor:", ordenesPorProveedor)
 
-      console.log("Response status:", response.status)
-      console.log("Response headers:", response.headers)
+    alert(
+      `¡Órdenes de compra generadas exitosamente!\n\n` +
+        `Cantidad de órdenes: ${cantidadOrdenes}\n` +
+        `Total general: $${totalGeneral.toFixed(2)}\n\n` +
+        `Se ha creado una orden separada para cada proveedor.`,
+    )
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("Error response:", errorText)
-        alert(`Error al generar la orden de compra: ${response.status} - ${errorText}`)
-        return
-      }
-
-      const data: RespuestaNuevaOrden = await response.json()
-      console.log("Response data:", data)
-
-      // Si hay productos existentes y no es una confirmación, mostrar modal
-      if (data.nombresPedidos && data.nombresPedidos.length > 0 && !confirmacion) {
-        setProductosExistentes(data.nombresPedidos)
-        setDetallesPendientes(detalles)
-        setShowConfirmModal(true)
-      } else {
-        // Éxito - mostrar mensaje y limpiar formulario
-        alert("¡Orden de compra generada exitosamente!")
-        setFilasOrden([])
-      }
-    } catch (error) {
-      console.error("Error al generar órdenes:", error)
-      alert(`Error al generar las órdenes de compra: ${error instanceof Error ? error.message : "Error de conexión"}`)
-    }
+    setFilasOrden([])
   }
-
-  const confirmarGeneracion = async () => {
-    setShowConfirmModal(false)
-    await generarOrdenesDeCompra(true)
+  /*
+  const obtenerArticulo = (articuloId: number) => {
+    return articulos.find((art) => art.id === articuloId)
   }
-
-  const cancelarGeneracion = () => {
-    setShowConfirmModal(false)
-    setProductosExistentes([])
-    setDetallesPendientes([])
+  */
+  const obtenerProveedorInfo = (articuloId: number) => {
+    
+    const fetchProveedores = async () => {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/GenerarOrdenCompra/sugerirOrden?idArticulo=${articuloId}`)
+        if (!response.ok) {
+            console.error("Error fetching proveedores:", response.statusText)
+            return
+        }
+        const data : DTOSugerirOrdenDetalle = await response.json()
+        const artSeleccionado = {
+            articuloId: articuloId,
+            sugerenciaOrden: data
+        }
+        setArticuloSeleccionado(artSeleccionado)
+        setArticulosSeleccionados((prev) => [...prev, artSeleccionado])
+    }
+    fetchProveedores()
+    
+    return null
   }
 
   return (
@@ -283,7 +297,7 @@ export default function GenerarOrdenDeCompraPage() {
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Link
-          href="/orden-de-compra/OrdenesCompra"
+          href="/orden-de-compra/GestionDeOrdenes"
           className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -322,11 +336,11 @@ export default function GenerarOrdenDeCompraPage() {
                     <TableHead className="text-purple-200 font-semibold">Cantidad</TableHead>
                     <TableHead className="text-purple-200 font-semibold">Subtotal</TableHead>
                     <TableHead className="text-purple-200 font-semibold text-center">Acciones</TableHead>
-                    <TableHead className="text-purple-200 font-semibold">Debug Info</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filasOrden.map((fila, index) => {
+
                     return (
                       <TableRow
                         key={fila.id}
@@ -339,7 +353,8 @@ export default function GenerarOrdenDeCompraPage() {
                           <Select
                             value={fila.articuloId.toString()}
                             onValueChange={(value) => {
-                              actualizarFila(fila.id, "articuloId", Number(value))
+                                actualizarFila(fila.id, "articuloId", Number(value))
+                                obtenerProveedorInfo(Number(value))
                             }}
                           >
                             <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
@@ -374,9 +389,7 @@ export default function GenerarOrdenDeCompraPage() {
                                   value={prov.proveedorId.toString()}
                                   className="text-slate-100 focus:bg-purple-600 focus:text-white"
                                 >
-                                  {prov.predeterminado
-                                    ? `${prov.nombreProvedor} (Predeterminado)`
-                                    : prov.nombreProvedor}
+                                  {prov.predeterminado ? prov.nombreProvedor + " (Predeterminado)" : prov.nombreProvedor}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -403,9 +416,6 @@ export default function GenerarOrdenDeCompraPage() {
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-xs text-slate-400">
-                          ID: {fila.articuloProveedorId || "No asignado"}
                         </TableCell>
                       </TableRow>
                     )
@@ -438,7 +448,7 @@ export default function GenerarOrdenDeCompraPage() {
           {filasOrden.length > 0 && (
             <div className="mt-6 flex justify-end">
               <Button
-                onClick={() => generarOrdenesDeCompra(false)}
+                onClick={generarOrdenesDeCompra}
                 className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 px-6 py-3"
               >
                 <Send className="w-5 h-5" />
@@ -448,35 +458,6 @@ export default function GenerarOrdenDeCompraPage() {
           )}
         </CardContent>
       </Card>
-
-      {/* Modal de confirmación */}
-      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-        <DialogContent className="bg-slate-800 border-slate-700 text-slate-100">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-yellow-400">
-              <AlertTriangle className="w-5 h-5" />
-              Productos con órdenes existentes
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-slate-300 mb-4">Ya existen órdenes de compra para los siguientes productos:</p>
-            <ul className="list-disc list-inside text-slate-200 bg-slate-700 p-4 rounded-lg">
-              {productosExistentes.map((producto, index) => (
-                <li key={index}>{producto}</li>
-              ))}
-            </ul>
-            <p className="text-slate-400 mt-4">¿Desea continuar con la generación de la orden?</p>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button onClick={cancelarGeneracion} variant="outline" className="bg-slate-700 border-slate-600">
-              Cancelar
-            </Button>
-            <Button onClick={confirmarGeneracion} className="bg-green-600 hover:bg-green-700">
-              Confirmar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
