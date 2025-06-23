@@ -14,21 +14,9 @@ interface DTOVenta {
   cantidadArticulos: number
 }
 
-interface EstadisticasVentas {
-  ventasDelMes: number
-  totalTransacciones: number
-  ticketPromedio: number
-  crecimientoMes: number
-}
 
 export default function VentasPage() {
   const [ventas, setVentas] = useState<DTOVenta[]>([])
-  const [estadisticas, setEstadisticas] = useState<EstadisticasVentas>({
-    ventasDelMes: 0,
-    totalTransacciones: 0,
-    ticketPromedio: 0,
-    crecimientoMes: 0
-  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -48,10 +36,7 @@ export default function VentasPage() {
 
         const data: DTOVenta[] = await response.json()
         setVentas(data || [])
-        
-        // Calcular estadísticas
-        calcularEstadisticas(data || [])
-        
+                
         setError(null)
       } catch (err) {
         console.error("Error al cargar ventas:", err)
@@ -63,43 +48,6 @@ export default function VentasPage() {
 
     fetchVentas()
   }, [API_URL])
-
-  const calcularEstadisticas = (ventasData: DTOVenta[]) => {
-    const ahora = new Date()
-    const mesActual = ahora.getMonth()
-    const añoActual = ahora.getFullYear()
-
-    // Filtrar ventas del mes actual
-    const ventasDelMes = ventasData.filter(venta => {
-      const fechaVenta = new Date(venta.fechaAlta)
-      return fechaVenta.getMonth() === mesActual && fechaVenta.getFullYear() === añoActual
-    })
-
-    // Calcular total del mes actual
-    const totalMesActual = ventasDelMes.reduce((sum, venta) => sum + venta.monto, 0)
-
-    // Calcular total del mes anterior
-    const ventasMesAnterior = ventasData.filter(venta => {
-      const fechaVenta = new Date(venta.fechaAlta)
-      const mesAnterior = mesActual === 0 ? 11 : mesActual - 1
-      const añoAnterior = mesActual === 0 ? añoActual - 1 : añoActual
-      return fechaVenta.getMonth() === mesAnterior && fechaVenta.getFullYear() === añoAnterior
-    })
-    const totalMesAnterior = ventasMesAnterior.reduce((sum, venta) => sum + venta.monto, 0)
-
-    // Calcular crecimiento
-    const crecimiento = totalMesAnterior > 0 ? ((totalMesActual - totalMesAnterior) / totalMesAnterior) * 100 : 0
-
-    // Calcular ticket promedio
-    const ticketPromedio = ventasData.length > 0 ? ventasData.reduce((sum, venta) => sum + venta.monto, 0) / ventasData.length : 0
-
-    setEstadisticas({
-      ventasDelMes: totalMesActual,
-      totalTransacciones: ventasData.length,
-      ticketPromedio: ticketPromedio,
-      crecimientoMes: crecimiento
-    })
-  }
 
   const handleNuevaVenta = () => {
     router.push('/ventas/GenerarVenta')
@@ -152,55 +100,6 @@ export default function VentasPage() {
           <Plus className="w-4 h-4" />
           Nueva Venta
         </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Ventas del Mes</CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-100">${estadisticas.ventasDelMes.toFixed(2)}</div>
-            <p className={`text-xs ${estadisticas.crecimientoMes >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {estadisticas.crecimientoMes >= 0 ? '+' : ''}{estadisticas.crecimientoMes.toFixed(1)}% vs mes anterior
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Total Transacciones</CardTitle>
-            <FileText className="h-4 w-4 text-blue-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-100">{estadisticas.totalTransacciones}</div>
-            <p className="text-xs text-slate-400">Todas las ventas registradas</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Ticket Promedio</CardTitle>
-            <DollarSign className="h-4 w-4 text-yellow-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-100">${estadisticas.ticketPromedio.toFixed(2)}</div>
-            <p className="text-xs text-slate-400">Promedio por venta</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Total Ventas</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-100">${ventas.reduce((sum, venta) => sum + venta.monto, 0).toFixed(2)}</div>
-            <p className="text-xs text-slate-400">Monto total histórico</p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Lista de ventas recientes */}

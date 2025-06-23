@@ -68,42 +68,7 @@ const menuItems = [
     icon: Calculator,
     description: "Calcular CGI de artículos",
     available: true,
-  },
-  {
-    title: "Agregar Artículo",
-    url: "/maestro-articulos/agregar",
-    icon: Plus,
-    description: "Registrar nuevos artículos",
-    available: false,
-  },
-  {
-    title: "Editar Artículos",
-    url: "/maestro-articulos/editar",
-    icon: Edit,
-    description: "Modificar artículos existentes",
-    available: false,
-  },
-  {
-    title: "Gestión de Stock",
-    url: "/maestro-articulos/stock",
-    icon: BarChart3,
-    description: "Controlar niveles de stock",
-    available: false,
-  },
-  {
-    title: "Categorías",
-    url: "/maestro-articulos/categorias",
-    icon: Tags,
-    description: "Administrar categorías",
-    available: false,
-  },
-  {
-    title: "Búsqueda Avanzada",
-    url: "/maestro-articulos/busqueda",
-    icon: Search,
-    description: "Buscar con filtros avanzados",
-    available: false,
-  },
+  }
 ]
 
 export default function MaestroArticulosLayout({

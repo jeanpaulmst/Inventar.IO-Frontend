@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Plus, Package, RefreshCw } from "lucide-react"
+import { Plus, Package, RefreshCw, ArrowLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -111,28 +111,35 @@ export default function GenerarVentaPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 bg-slate-900 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-100 mb-2">Generar Venta</h1>
-          <p className="text-slate-400">Gestión y registro de ventas realizadas</p>
-        </div>
+      <div className="mb-8">
+        <Link href="/ventas" className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 mb-6">
+          <ArrowLeft className="w-4 h-4" />
+          Volver a Ventas
+        </Link>
 
-        <div className="flex gap-2">
-          <Button 
-            onClick={handleRefresh} 
-            disabled={refreshing}
-            variant="outline" 
-            className="border-slate-600 text-slate-300 hover:bg-slate-700"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Actualizando...' : 'Actualizar'}
-          </Button>
-          <Link href="/ventas/NuevaVenta">
-            <Button className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Nueva Venta
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-100 mb-2">Generar Venta</h1>
+            <p className="text-slate-400">Gestión y registro de ventas realizadas</p>
+          </div>
+
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleRefresh} 
+              disabled={refreshing}
+              variant="outline" 
+              className="bg-slate-700 border-slate-600 text-slate-200 hover:bg-slate-600 hover:text-slate-100 disabled:bg-slate-800 disabled:text-slate-400 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Actualizando...' : 'Actualizar'}
             </Button>
-          </Link>
+            <Link href="/ventas/NuevaVenta">
+              <Button className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Nueva Venta
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 

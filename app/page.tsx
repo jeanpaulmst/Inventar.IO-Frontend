@@ -29,10 +29,6 @@ export default function HomePage() {
                   categorías.
                 </p>
                 <div className="space-y-2 text-sm text-slate-400">
-                  <div>• Listar artículos por proveedor</div>
-                  <div>• Gestión de stock</div>
-                  <div>• Control de precios</div>
-                  <div>• Categorización de productos</div>
                 </div>
                 <div className="mt-6 flex items-center text-blue-400 text-sm font-medium">Acceder al módulo →</div>
               </CardContent>
@@ -53,10 +49,6 @@ export default function HomePage() {
                   Administración completa de proveedores y sus relaciones comerciales con la empresa.
                 </p>
                 <div className="space-y-2 text-sm text-slate-400">
-                  <div>• Registro de proveedores</div>
-                  <div>• Gestión de contactos</div>
-                  <div>• Historial de compras</div>
-                  <div>• Evaluación de proveedores</div>
                 </div>
                 <div className="mt-6 flex items-center text-green-400 text-sm font-medium">Acceder al módulo →</div>
               </CardContent>
@@ -77,10 +69,6 @@ export default function HomePage() {
                   Gestión completa del ciclo de órdenes de compra, desde la generación hasta el seguimiento.
                 </p>
                 <div className="space-y-2 text-sm text-slate-400">
-                  <div>• Generar órdenes de compra</div>
-                  <div>• Modificar órdenes existentes</div>
-                  <div>• Cancelar órdenes</div>
-                  <div>• Gestión de estados</div>
                 </div>
                 <div className="mt-6 flex items-center text-purple-400 text-sm font-medium">Acceder al módulo →</div>
               </CardContent>
@@ -101,10 +89,6 @@ export default function HomePage() {
                   Módulo de ventas para la generación y gestión de transacciones comerciales.
                 </p>
                 <div className="space-y-2 text-sm text-slate-400">
-                  <div>• Generar nueva venta</div>
-                  <div>• Historial de ventas</div>
-                  <div>• Reportes de ventas</div>
-                  <div>• Gestión de clientes</div>
                 </div>
                 <div className="mt-6 flex items-center text-orange-400 text-sm font-medium">Acceder al módulo →</div>
               </CardContent>

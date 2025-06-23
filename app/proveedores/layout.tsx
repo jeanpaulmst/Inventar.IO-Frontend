@@ -35,49 +35,7 @@ const menuItems = [
     icon: Search,
     description: "Buscar proveedores por artículo",
     available: true,
-  },
-  {
-    title: "Registrar Proveedor",
-    url: "/proveedores/registrar",
-    icon: UserPlus,
-    description: "Registrar nuevos proveedores",
-    available: false,
-  },
-  {
-    title: "Listar Proveedores",
-    url: "/proveedores/listar",
-    icon: Users,
-    description: "Ver lista completa de proveedores",
-    available: false,
-  },
-  {
-    title: "Editar Proveedor",
-    url: "/proveedores/editar",
-    icon: Edit,
-    description: "Modificar información de proveedores",
-    available: false,
-  },
-  {
-    title: "Gestión de Contactos",
-    url: "/proveedores/contactos",
-    icon: Phone,
-    description: "Administrar contactos de proveedores",
-    available: false,
-  },
-  {
-    title: "Historial de Compras",
-    url: "/proveedores/historial",
-    icon: FileText,
-    description: "Ver historial de compras por proveedor",
-    available: false,
-  },
-  {
-    title: "Evaluación",
-    url: "/proveedores/evaluacion",
-    icon: BarChart3,
-    description: "Evaluar desempeño de proveedores",
-    available: false,
-  },
+  }
 ]
 
 export default function ProveedoresLayout({

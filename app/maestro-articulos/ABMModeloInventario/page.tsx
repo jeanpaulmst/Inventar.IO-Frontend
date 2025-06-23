@@ -26,6 +26,7 @@ interface DTOABMModeloInventario {
 
 export default function ABMModeloInventarioPage() {
   const [modelos, setModelos] = useState<DTOABMModeloInventario[]>([])
+  const [todosLosModelos, setTodosLosModelos] = useState<DTOABMModeloInventario[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showOnlyActive, setShowOnlyActive] = useState(true)
@@ -47,6 +48,21 @@ export default function ABMModeloInventarioPage() {
 
       const data: DTOABMModeloInventario[] = await response.json()
       setModelos(data)
+      
+      // Si estamos mostrando solo vigentes, también obtener todos para las estadísticas
+      if (showOnlyActive) {
+        const responseTodos = await fetch(
+          `http://localhost:8080/ABMModeloInventario/getModelos?soloVigentes=false`,
+        )
+        if (responseTodos.ok) {
+          const todosLosData: DTOABMModeloInventario[] = await responseTodos.json()
+          setTodosLosModelos(todosLosData)
+        }
+      } else {
+        // Si estamos mostrando todos, usar los mismos datos para las estadísticas
+        setTodosLosModelos(data)
+      }
+      
       setError(null)
     } catch (err) {
       console.error("Error al obtener modelos de inventario:", err)
@@ -97,14 +113,46 @@ export default function ABMModeloInventarioPage() {
 
   const router = useRouter()
 
+  // Función para formatear la fecha de baja
+  const formatFechaBaja = (fechaBaja: string | null) => {
+    if (!fechaBaja) return "Activo";
+    
+    try {
+      // Si es un timestamp numérico, convertirlo a Date
+      const fecha = typeof fechaBaja === 'number' 
+        ? new Date(fechaBaja) 
+        : new Date(fechaBaja);
+      
+      return fecha.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return fechaBaja; // Devolver el valor original si hay error
+    }
+  }
+
   const handleModificar = (idMI: number) => {
+    // Buscar el modelo en todosLosModelos para verificar su estado
+    const modelo = todosLosModelos.find(m => m.idMI === idMI)
+    
+    if (modelo && modelo.fhBajaMI !== null) {
+      alert(`No se puede modificar el modelo "${modelo.nombreMI}" porque está dado de baja.`)
+      return
+    }
+    
     router.push(`/maestro-articulos/ABMModeloInventario/ModificarModeloInventario/${idMI}`)
   }
 
   // Calcular estadísticas
-  const totalModelos = modelos.length
-  const modelosActivos = modelos.filter((modelo) => modelo.fhBajaMI === null).length
-  const modelosDadosBaja = modelos.filter((modelo) => modelo.fhBajaMI !== null).length
+  const totalModelos = todosLosModelos.length
+  const modelosActivos = todosLosModelos.filter((modelo) => modelo.fhBajaMI === null).length
+  const modelosDadosBaja = todosLosModelos.filter((modelo) => modelo.fhBajaMI !== null).length
 
   if (loading) {
     return (
@@ -160,7 +208,7 @@ export default function ABMModeloInventarioPage() {
         <Checkbox
           id="show-active"
           checked={showOnlyActive}
-          onCheckedChange={() => setShowOnlyActive}
+          onCheckedChange={(checked) => setShowOnlyActive(checked as boolean)}
           className="border-slate-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
         />
         <label htmlFor="show-active" className="text-slate-300 cursor-pointer select-none">
@@ -201,24 +249,34 @@ export default function ABMModeloInventarioPage() {
                       <TableCell className="text-slate-300 font-mono">{modelo.idMI}</TableCell>
                       <TableCell className="text-slate-100 font-medium">{modelo.nombreMI}</TableCell>
                       <TableCell className={`${modelo.fhBajaMI ? "text-red-400" : "text-green-400"}`}>
-                        {modelo.fhBajaMI || "Activo"}
+                        {formatFechaBaja(modelo.fhBajaMI)}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-center gap-2">
                           <Button
-                            onClick={() => handleModificar(modelo.idMI)}
+                            onClick={modelo.fhBajaMI ? undefined : () => handleModificar(modelo.idMI)}
                             size="sm"
                             variant="outline"
-                            className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
+                            className={`${
+                              modelo.fhBajaMI !== null 
+                                ? "bg-slate-600 text-slate-400 border-slate-600 cursor-not-allowed" 
+                                : "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700"
+                            } flex items-center gap-1`}
+                            title={modelo.fhBajaMI !== null ? "No se puede modificar un modelo dado de baja" : ""}
                           >
                             <Edit className="w-3 h-3" />
                             Modificar
                           </Button>
                           <Button
-                            onClick={() => handleEliminar(modelo)}
+                            onClick={modelo.fhBajaMI ? undefined : () => handleEliminar(modelo)}
                             size="sm"
                             variant="outline"
-                            className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700 flex items-center gap-1"
+                            className={`${
+                              modelo.fhBajaMI !== null 
+                                ? "bg-slate-600 text-slate-400 border-slate-600 cursor-not-allowed" 
+                                : "bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+                            } flex items-center gap-1`}
+                            title={modelo.fhBajaMI !== null ? "Este modelo ya está dado de baja" : ""}
                           >
                             <Trash2 className="w-3 h-3" />
                             Eliminar
@@ -243,7 +301,7 @@ export default function ABMModeloInventarioPage() {
             <div className="flex flex-wrap gap-6 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                <span className="text-slate-300">Total mostrado: </span>
+                <span className="text-slate-300">Total en sistema: </span>
                 <span className="text-blue-400 font-semibold">{totalModelos}</span>
               </div>
               <div className="flex items-center gap-2">

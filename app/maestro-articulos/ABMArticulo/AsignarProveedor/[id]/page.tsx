@@ -107,7 +107,11 @@ export default function AsignarProveedorPage() {
         setLoading(true)
         
         // Cargar artículos
-        const articulosResponse = await fetch(`${API_URL}/ABMArticulo/getAll?soloVigentes=true`)
+        const articulosResponse = await fetch(`${API_URL}/ABMArticulo/getAll?soloVigentes=true`, {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
         if (articulosResponse.ok) {
           const articulosData = await articulosResponse.json()
           setArticulos(articulosData || [])
@@ -117,7 +121,11 @@ export default function AsignarProveedorPage() {
         }
 
         // Cargar proveedores
-        const proveedoresResponse = await fetch(`${API_URL}/ABMProveedor/getProveedores?soloVigentes=true`)
+        const proveedoresResponse = await fetch(`${API_URL}/ABMProveedor/getProveedores?soloVigentes=true`, {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
         if (proveedoresResponse.ok) {
           const proveedoresData = await proveedoresResponse.json()
           setProveedores(proveedoresData || [])
@@ -127,7 +135,11 @@ export default function AsignarProveedorPage() {
         }
 
         // Cargar modelos de inventario
-        const modelosResponse = await fetch(`${API_URL}/ABMModeloInventario/getModelos?soloVigentes=true`)
+        const modelosResponse = await fetch(`${API_URL}/ABMModeloInventario/getModelos?soloVigentes=true`, {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
         if (modelosResponse.ok) {
           const modelosData = await modelosResponse.json()
           setModelosInventario(modelosData || [])
@@ -165,16 +177,29 @@ export default function AsignarProveedorPage() {
       return
     }
 
+    // Validaciones específicas según el modelo
+    if (isModeloTiempoFijo()) {
+      if (!formData.tiempoFijo || formData.tiempoFijo <= 0) {
+        alert("Para el modelo Tiempo Fijo, debe especificar un tiempo fijo válido")
+        return
+      }
+    }
+
     setSaving(true)
     try {
       const dto = { ...formData }
       // Si proximaRevision está vacía, no la mandes
       if (!dto.proximaRevision) delete dto.proximaRevision
-      const response = await fetch(`${API_URL}/asignarProveedor/asignar?dto=${encodeURIComponent(JSON.stringify(dto))}`, {
+            
+
+      console.log(JSON.stringify(dto))
+      
+      const response = await fetch(`${API_URL}/asignarProveedor/asignar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-        }
+        },
+        body: JSON.stringify(dto)
       })
 
       if (response.ok) {
@@ -190,6 +215,23 @@ export default function AsignarProveedorPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  // Función para obtener el modelo seleccionado
+  const getModeloInventarioSeleccionado = () => {
+    return modelosInventario.find(modelo => modelo.idMI === formData.modeloInventarioId)
+  }
+
+  // Función para detectar si es Lote Fijo
+  const isModeloLoteFijo = () => {
+    const modelo = getModeloInventarioSeleccionado()
+    return modelo?.nombreMI.toLowerCase().includes('lote fijo')
+  }
+
+  // Función para detectar si es Tiempo Fijo
+  const isModeloTiempoFijo = () => {
+    const modelo = getModeloInventarioSeleccionado()
+    return modelo?.nombreMI.toLowerCase().includes('tiempo fijo')
   }
 
   if (loading) {
@@ -420,21 +462,6 @@ export default function AsignarProveedorPage() {
                 />
               </div>
 
-              {/* Stock de Seguridad */}
-              <div className="space-y-2">
-                <Label htmlFor="stockSeguridad" className="text-slate-200 font-medium">
-                  Stock de Seguridad
-                </Label>
-                <Input
-                  id="stockSeguridad"
-                  type="number"
-                  value={formData.stockSeguridad}
-                  onChange={(e) => handleInputChange('stockSeguridad', parseInt(e.target.value) || 0)}
-                  className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500"
-                  placeholder="0"
-                />
-              </div>
-
               {/* Nivel de Servicio */}
               <div className="space-y-2">
                 <Label htmlFor="nivelServicio" className="text-slate-200 font-medium">
@@ -453,35 +480,65 @@ export default function AsignarProveedorPage() {
                 />
               </div>
 
-              {/* Tiempo Fijo */}
-              <div className="space-y-2">
-                <Label htmlFor="tiempoFijo" className="text-slate-200 font-medium">
-                  Tiempo Fijo (días)
-                </Label>
-                <Input
-                  id="tiempoFijo"
-                  type="number"
-                  value={formData.tiempoFijo}
-                  onChange={(e) => handleInputChange('tiempoFijo', parseInt(e.target.value) || 0)}
-                  className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500"
-                  placeholder="0"
-                />
-              </div>
+              {/* Campos específicos para Tiempo Fijo */}
+              {isModeloTiempoFijo() && (
+                <>
+                  {/* Tiempo Fijo */}
+                  <div className="space-y-2">
+                    <Label htmlFor="tiempoFijo" className="text-slate-200 font-medium">
+                      Tiempo Fijo (días) *
+                    </Label>
+                    <Input
+                      id="tiempoFijo"
+                      type="number"
+                      value={formData.tiempoFijo}
+                      onChange={(e) => handleInputChange('tiempoFijo', parseInt(e.target.value) || 0)}
+                      className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500"
+                      placeholder="0"
+                      required
+                    />
+                  </div>
 
-              {/* Próxima Revisión */}
-              <div className="space-y-2">
-                <Label htmlFor="proximaRevision" className="text-slate-200 font-medium">
-                  Próxima Revisión (opcional)
-                </Label>
-                <Input
-                  id="proximaRevision"
-                  type="date"
-                  value={formData.proximaRevision && formData.proximaRevision.length > 0 ? formData.proximaRevision.substring(0, 10) : ""}
-                  onChange={(e) => handleInputChange('proximaRevision', e.target.value ? new Date(e.target.value).toISOString() : "")}
-                  className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500"
-                />
-              </div>
+                  {/* Próxima Revisión */}
+                  <div className="space-y-2">
+                    <Label htmlFor="proximaRevision" className="text-slate-200 font-medium">
+                      Próxima Revisión
+                    </Label>
+                    <Input
+                      id="proximaRevision"
+                      type="date"
+                      value={formData.proximaRevision && formData.proximaRevision.length > 0 ? formData.proximaRevision.substring(0, 10) : ""}
+                      onChange={(e) => handleInputChange('proximaRevision', e.target.value ? new Date(e.target.value).toISOString() : "")}
+                      className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500"
+                    />
+                  </div>
+                </>
+              )}
             </div>
+
+            {/* Información del modelo seleccionado */}
+            {formData.modeloInventarioId > 0 && (
+              <div className="p-4 bg-slate-700 rounded-lg border border-slate-600">
+                <h4 className="text-slate-200 font-medium mb-2">
+                  Modelo Seleccionado: {getModeloInventarioSeleccionado()?.nombreMI}
+                </h4>
+                {isModeloLoteFijo() && (
+                  <p className="text-slate-400 text-sm">
+                    Campos requeridos: Costo de pedido, Costo unitario, Demora de entrega, Nivel de servicio
+                  </p>
+                )}
+                {isModeloTiempoFijo() && (
+                  <p className="text-slate-400 text-sm">
+                    Campos requeridos: Costo de pedido, Costo unitario, Demora de entrega, Nivel de servicio, Tiempo fijo, Próxima revisión
+                  </p>
+                )}
+                {!isModeloLoteFijo() && !isModeloTiempoFijo() && (
+                  <p className="text-slate-400 text-sm">
+                    Todos los campos están disponibles para este modelo
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Checkbox Predeterminado */}
             <div className="flex items-center space-x-2">

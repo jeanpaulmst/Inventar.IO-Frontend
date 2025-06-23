@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { ArrowLeft, ClipboardList, PackageCheck, DollarSign } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -109,27 +110,24 @@ export default function OrdenesCompra() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => router.back()}
-            variant="outline"
-            className="bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-slate-100"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
+      <div className="mb-8">
+        <Link href="/orden-de-compra" className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 mb-6">
+          <ArrowLeft className="w-4 h-4" />
+          Volver a Orden de Compra
+        </Link>
+
+        <div className="flex items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-slate-100">Órdenes de Compra</h1>
             <p className="text-slate-400">Listado de órdenes generadas</p>
           </div>
+          <Button
+            onClick={() => router.push("/orden-de-compra/GenerarOrdenDeCompra")}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            Generar Orden de Compra
+          </Button>
         </div>
-        <Button
-          onClick={() => router.push("/orden-de-compra/GenerarOrdenDeCompra")}
-          className="bg-green-600 hover:bg-green-700 text-white"
-        >
-          Generar Orden de Compra
-        </Button>
       </div>
 
       {/* Grid de Cards */}
@@ -197,14 +195,20 @@ export default function OrdenesCompra() {
                     <Button
                       onClick={() => handleModificar(orden.idOrdenDeCompra)}
                       size="sm"
-                      className="bg-yellow-600 hover:bg-yellow-700 text-slate-900 font-semibold flex items-center gap-2 px-4 py-2"
+                      className="bg-yellow-600 hover:bg-yellow-700 text-slate-900 font-semibold"
                     >
                       Modificar
                     </Button>
                   </>
                 )}
                 {orden.estado === "Enviada" && (
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">Finalizar</Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => handleFinalizar(orden.idOrdenDeCompra)}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Finalizar
+                  </Button>
                 )}
               </div>
             </CardContent>
