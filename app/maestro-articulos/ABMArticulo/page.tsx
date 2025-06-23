@@ -53,13 +53,13 @@ export default function ABMArticuloPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
-  const API_URL = "http://localhost:8080/ABMArticulo"
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
 
   // Función para obtener artículos del backend
   const fetchArticulos = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${API_URL}/getAll?soloVigentes=false`)
+      const response = await fetch(`${API_URL}/ABMArticulo/getAll?soloVigentes=false`)
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`)
@@ -80,7 +80,7 @@ export default function ABMArticuloPage() {
   // Función para obtener proveedores del backend
   const fetchProveedores = async () => {
     try {
-      const response = await fetch(`${API_URL}/getProveedores?soloVigentes=true`)
+      const response = await fetch(`${API_URL}/ABMProveedor/getProveedores?soloVigentes=true`)
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`)
