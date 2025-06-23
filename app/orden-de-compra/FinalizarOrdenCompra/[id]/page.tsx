@@ -41,6 +41,7 @@ interface DTODetalleAtencion {
   nombreProveedor: string
 }
 
+
 interface DTOFinalizarOrdenCompra {
   idOC: number
   fhAltaOC: string
