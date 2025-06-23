@@ -32,6 +32,18 @@ export default function OrdenesCompra() {
     router.push(`/orden-de-compra/OrdenesCompra/${id}`)
   }
 
+  const handleEnviar = (id: number) => {
+    router.push(`/orden-de-compra/EnviarOrdenCompra/${id}`)
+  }
+
+  const handleCancelar = (id: number) => {
+    router.push(`/orden-de-compra/CancelarOrdenCompra/${id}`)
+  }
+
+  const handleFinalizar = (id: number) => {
+    router.push(`/orden-de-compra/FinalizarOrdenCompra/${id}`)
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       {/* Header */}
@@ -110,8 +122,20 @@ export default function OrdenesCompra() {
               <div className="flex gap-2 justify-end pt-2">
                 {orden.estado === "Pendiente" && (
                   <>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">Enviar</Button>
-                    <Button className="bg-red-600 hover:bg-red-700 text-white">Cancelar</Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => handleEnviar(orden.idOrdenDeCompra)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Enviar
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => handleCancelar(orden.idOrdenDeCompra)}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Cancelar
+                    </Button>
                     <Button
                       onClick={() => handleModificar(orden.idOrdenDeCompra)}
                       size="sm"
