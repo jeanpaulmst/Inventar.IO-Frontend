@@ -292,10 +292,15 @@ export default function ABMArticuloPage() {
                           <span className="text-slate-300">{proveedores.find(p => p.idProveedor === articulo.proveedorPredeterminado)?.nombreProveedor}</span>
                         ) : (
                           <Button
-                            onClick={() => handleProveedor(articulo.id)}
+                            onClick={articulo.fhBajaArticulo ? undefined : () => handleProveedor(articulo.id)}
                             size="sm"
                             variant="outline"
-                            className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700 flex items-center gap-1"
+                            className={`${
+                              articulo.fhBajaArticulo !== null 
+                                ? "bg-slate-600 text-slate-400 border-slate-600 cursor-not-allowed" 
+                                : "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700"
+                            } flex items-center gap-1`}
+                            title={articulo.fhBajaArticulo !== null ? "No se puede asignar proveedor a un artículo dado de baja" : ""}
                           >
                             <Edit className="w-3 h-3" />
                             Asignar Proveedor

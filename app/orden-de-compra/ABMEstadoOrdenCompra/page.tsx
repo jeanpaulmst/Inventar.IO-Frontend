@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -24,55 +25,6 @@ interface EstadoOrdenCompra {
   fechaHoraBaja: string | null
 }
 
-// Datos de ejemplo (temporal hasta conectar con backend)
-const estadosEjemplo: EstadoOrdenCompra[] = [
-  {
-    id: 1,
-    nombreEstado: "Pendiente",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 2,
-    nombreEstado: "Aprobada",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 3,
-    nombreEstado: "Rechazada",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 4,
-    nombreEstado: "En proceso",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 5,
-    nombreEstado: "Completada",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 6,
-    nombreEstado: "Cancelada",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 7,
-    nombreEstado: "En revisión",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 8,
-    nombreEstado: "Pendiente de pago",
-    fechaHoraBaja: null,
-  },
-  {
-    id: 9,
-    nombreEstado: "Pago pendiente",
-    fechaHoraBaja: "2024-03-05 09:15:00",
-  },
-]
-
 export default function ABMEstadoOrdenPage() {
   const [estados, setEstados] = useState<EstadoOrdenCompra[]>([]);
   const [todosLosEstados, setTodosLosEstados] = useState<EstadoOrdenCompra[]>([]);
@@ -83,6 +35,11 @@ export default function ABMEstadoOrdenPage() {
   const [selectedEstado, setSelectedEstado] =
     useState<EstadoOrdenCompra | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // URLs base para los endpoints
+  const API_URL_ESTADOS = "http://localhost:8080/ABMEstadoOrdenCompra";
+
+  const router = useRouter();
 
   // Función para formatear la fecha de baja
   const formatFechaBaja = (fechaBaja: string | null) => {
@@ -114,7 +71,7 @@ export default function ABMEstadoOrdenPage() {
       setLoading(true);
       // TODO: Reemplazar con el endpoint real del backend
       const response = await fetch(
-        `http://localhost:8080/ABMEstadoOrdenCompra/getEstados?soloVigentes=${showOnlyActive}`
+        `${API_URL_ESTADOS}/getEstados?soloVigentes=${showOnlyActive}`
       );
 
       if (!response.ok) {
@@ -133,7 +90,7 @@ export default function ABMEstadoOrdenPage() {
       // Si estamos mostrando solo vigentes, también obtener todos para las estadísticas
       if (showOnlyActive) {
         const responseTodos = await fetch(
-          `http://localhost:8080/ABMEstadoOrdenCompra/getEstados?soloVigentes=false`
+          `${API_URL_ESTADOS}/getEstados?soloVigentes=false`
         );
         if (responseTodos.ok) {
           const rawTodos = await responseTodos.json();
@@ -153,9 +110,7 @@ export default function ABMEstadoOrdenPage() {
     } catch (err) {
       console.error("Error al obtener estados de orden de compra:", err);
       setError(err instanceof Error ? err.message : "Error desconocido");
-      // Usar datos de ejemplo si hay error
-      setEstados(estadosEjemplo);
-      setTodosLosEstados(estadosEjemplo);
+      // No usar datos de ejemplo, dejar que el error se muestre
     } finally {
       setLoading(false);
     }
@@ -186,9 +141,9 @@ export default function ABMEstadoOrdenPage() {
     setIsDeleting(true);
     try {
       const response = await fetch(
-        `http://localhost:8080/ABMEstadoOrdenCompra/baja/${selectedEstado.id}`,
+        `${API_URL_ESTADOS}/bajaEstado?idEstadoOrdenCompra=${selectedEstado.id}`,
         {
-          method: "PUT",
+          method: "POST",
         }
       );
 
@@ -215,16 +170,19 @@ export default function ABMEstadoOrdenPage() {
   };
 
   const handleModificar = (id: number, nombreEstado: string) => {
-    // Aquí iría la lógica para modificar el estado
-    console.log(`Modificar estado ${id}: ${nombreEstado}`)
-    // Por ahora solo mostramos un alert
-    alert(`Funcionalidad de modificar estado "${nombreEstado}" será implementada`)
+    // Buscar el estado en todosLosEstados para verificar su estado
+    const estado = todosLosEstados.find(e => e.id === id)
+    
+    if (estado && estado.fechaHoraBaja !== null) {
+      alert(`No se puede modificar el estado "${estado.nombreEstado}" porque está dado de baja.`)
+      return
+    }
+    
+    router.push(`/orden-de-compra/ABMEstadoOrdenCompra/ModificarEstado/${id}`)
   }
 
   const handleNuevoEstado = () => {
-    // Aquí iría la lógica para crear un nuevo estado
-    console.log("Crear nuevo estado")
-    alert("Funcionalidad de crear nuevo estado será implementada")
+    router.push("/orden-de-compra/ABMEstadoOrdenCompra/AltaEstado")
   }
 
   if (loading) {
