@@ -45,7 +45,7 @@ export default function ModificarEstadoOrdenCompraPage() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${API_URL_ESTADOS}/getDatosEstado?idEstadoOrdenCompra=${estadoId}`,
+          `${API_URL_ESTADOS}/getDatosEstado?idEstadoOrdenCompra=${estadoId}`
         );
 
         if (!response.ok) {
@@ -53,7 +53,7 @@ export default function ModificarEstadoOrdenCompraPage() {
         }
 
         const data: any = await response.json();
-        
+
         setEstado({
           id: data.idEOC,
           nombreEstado: data.nombreEstado,
@@ -76,7 +76,10 @@ export default function ModificarEstadoOrdenCompraPage() {
     }
   }, [estadoId]);
 
-  const handleInputChange = (field: keyof DTOEstadoOrdenCompra, value: string) => {
+  const handleInputChange = (
+    field: keyof DTOEstadoOrdenCompra,
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -118,14 +121,19 @@ export default function ModificarEstadoOrdenCompraPage() {
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(`Error: ${errorData.mensaje}`);
       }
 
       alert(`Estado "${formData.nombreEstado.trim()}" modificado exitosamente`);
       router.push("/orden-de-compra/ABMEstadoOrdenCompra");
     } catch (error) {
       console.error("Error al modificar estado:", error);
-      alert(`Error al modificar el estado: ${error instanceof Error ? error.message : "Error desconocido"}`);
+      alert(
+        `Error al modificar el estado: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
     } finally {
       setIsSaving(false);
     }
@@ -152,10 +160,16 @@ export default function ModificarEstadoOrdenCompraPage() {
             <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-red-400 text-2xl">⚠</span>
             </div>
-            <h3 className="text-xl font-semibold text-slate-300 mb-2">Error al cargar estado</h3>
-            <p className="text-slate-400 mb-4">{error || "Estado no encontrado"}</p>
+            <h3 className="text-xl font-semibold text-slate-300 mb-2">
+              Error al cargar estado
+            </h3>
+            <p className="text-slate-400 mb-4">
+              {error || "Estado no encontrado"}
+            </p>
             <Link href="/orden-de-compra/ABMEstadoOrdenCompra">
-              <Button className="bg-purple-600 hover:bg-purple-700">Volver a ABM Estado Orden de Compra</Button>
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                Volver a ABM Estado Orden de Compra
+              </Button>
             </Link>
           </div>
         </div>
@@ -176,9 +190,15 @@ export default function ModificarEstadoOrdenCompraPage() {
         </Link>
 
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-100 mb-4">Modificar Estado de Orden de Compra</h1>
+          <h1 className="text-4xl font-bold text-slate-100 mb-4">
+            Modificar Estado de Orden de Compra
+          </h1>
           <p className="text-slate-400 text-lg">
-            Editando: <span className="text-purple-400 font-medium">{estado.nombreEstado}</span> (ID: {estado.id})
+            Editando:{" "}
+            <span className="text-purple-400 font-medium">
+              {estado.nombreEstado}
+            </span>{" "}
+            (ID: {estado.id})
           </p>
         </div>
       </div>
@@ -196,21 +216,28 @@ export default function ModificarEstadoOrdenCompraPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Campo Nombre */}
               <div className="space-y-2">
-                <Label htmlFor="nombreEstado" className="text-slate-200 font-medium">
+                <Label
+                  htmlFor="nombreEstado"
+                  className="text-slate-200 font-medium"
+                >
                   Nombre del Estado *
                 </Label>
                 <Input
                   id="nombreEstado"
                   type="text"
                   value={formData.nombreEstado}
-                  onChange={(e) => handleInputChange("nombreEstado", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("nombreEstado", e.target.value)
+                  }
                   placeholder="Ingrese el nombre del estado"
                   className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500 ${
                     errors.nombreEstado ? "border-red-500" : ""
                   }`}
                   disabled={isSaving}
                 />
-                {errors.nombreEstado && <p className="text-red-400 text-sm">{errors.nombreEstado}</p>}
+                {errors.nombreEstado && (
+                  <p className="text-red-400 text-sm">{errors.nombreEstado}</p>
+                )}
               </div>
 
               {/* Información adicional */}
@@ -219,7 +246,9 @@ export default function ModificarEstadoOrdenCompraPage() {
                 <ul className="text-sm text-slate-400 space-y-1">
                   <li>• Los campos marcados con (*) son obligatorios</li>
                   <li>• El nombre del estado debe ser único</li>
-                  <li>• Los cambios se aplicarán inmediatamente al confirmar</li>
+                  <li>
+                    • Los cambios se aplicarán inmediatamente al confirmar
+                  </li>
                 </ul>
               </div>
 
@@ -249,7 +278,9 @@ export default function ModificarEstadoOrdenCompraPage() {
 
         {/* Información adicional */}
         <div className="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
-          <h4 className="text-slate-200 font-medium mb-2">Información del estado original</h4>
+          <h4 className="text-slate-200 font-medium mb-2">
+            Información del estado original
+          </h4>
           <div className="text-sm text-slate-400 space-y-1">
             <p>• ID: {estado.id}</p>
             <p>• Fecha de baja: {estado.fechaHoraBaja || "Activo"}</p>

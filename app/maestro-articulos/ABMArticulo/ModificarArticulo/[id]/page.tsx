@@ -1,45 +1,46 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Save } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft, Save } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 // Tipos
 interface Articulo {
-  id: number
-  costoAlmacenamiento: number
-  descripcionArt: string
-  fhBajaArticulo: string | null
-  inventarioMaxArticulo: number
-  nombre: string
-  precioUnitario: number
-  stock: number
+  id: number;
+  costoAlmacenamiento: number;
+  descripcionArt: string;
+  fhBajaArticulo: string | null;
+  inventarioMaxArticulo: number;
+  nombre: string;
+  precioUnitario: number;
+  stock: number;
+  demanda: number;
 }
 
 interface DTOABMArticulo {
-  costoAlmacenamiento: number
-  demanda: number
-  descripcionArt: string
-  inventarioMaxArticulo: number
-  nombre: string
-  precioUnitario: number
-  stock: number
+  costoAlmacenamiento: number;
+  demanda: number;
+  descripcionArt: string;
+  inventarioMaxArticulo: number;
+  nombre: string;
+  precioUnitario: number;
+  stock: number;
 }
 
 export default function ModificarArticuloPage() {
-  const params = useParams()
-  const router = useRouter()
-  const articuloId = params.id as string
+  const params = useParams();
+  const router = useRouter();
+  const articuloId = params.id as string;
 
-  const [articulo, setArticulo] = useState<Articulo | null>(null)
+  const [articulo, setArticulo] = useState<Articulo | null>(null);
   const [formData, setFormData] = useState<DTOABMArticulo>({
     costoAlmacenamiento: 0,
     demanda: 0,
@@ -48,65 +49,70 @@ export default function ModificarArticuloPage() {
     nombre: "",
     precioUnitario: 0,
     stock: 0,
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [errors, setErrors] = useState<Partial<DTOABMArticulo>>({})
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<DTOABMArticulo>>({});
 
   // Cargar datos del artículo
   useEffect(() => {
     const fetchArticulo = async () => {
       try {
-        setIsLoading(true)
-        const response = await fetch(`http://localhost:8080/ABMArticulo/getArticulo?id=${articuloId}`)
+        setIsLoading(true);
+        const response = await fetch(
+          `http://localhost:8080/ABMArticulo/getArticulo?id=${articuloId}`
+        );
 
         if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`)
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
-        const data: Articulo = await response.json()
-        setArticulo(data)
+        const data: Articulo = await response.json();
+        setArticulo(data);
 
         // Llenar el formulario con los datos del artículo
         setFormData({
           costoAlmacenamiento: data.costoAlmacenamiento,
-          demanda: 0, // Este campo no viene en la respuesta, se mantiene en 0
+          demanda: data.demanda, // Este campo no viene en la respuesta, se mantiene en 0
           descripcionArt: data.descripcionArt,
           inventarioMaxArticulo: data.inventarioMaxArticulo,
           nombre: data.nombre,
           precioUnitario: data.precioUnitario,
           stock: data.stock,
-        })
+        });
 
-        setError(null)
+        setError(null);
       } catch (err) {
-        console.error("Error al cargar artículo:", err)
-        setError(err instanceof Error ? err.message : "Error desconocido")
+        console.error("Error al cargar artículo:", err);
+        setError(err instanceof Error ? err.message : "Error desconocido");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     if (articuloId) {
-      fetchArticulo()
+      fetchArticulo();
     }
-  }, [articuloId])
+  }, [articuloId]);
 
-  const handleInputChange = (field: keyof DTOABMArticulo, value: string | number) => {
+  const handleInputChange = (
+    field: keyof DTOABMArticulo,
+    value: string | number
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-    }))
+    }));
 
     // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
         [field]: undefined,
-      }))
+      }));
     }
-  }
+  };
 
   /*
   const validateForm = (): boolean => {
@@ -146,14 +152,14 @@ export default function ModificarArticuloPage() {
     */
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     /*
     if (!validateForm()) {
       return
     }
     */
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
       // Crear el objeto Articulo completo con el ID incluido
@@ -166,29 +172,37 @@ export default function ModificarArticuloPage() {
         nombre: formData.nombre,
         precioUnitario: formData.precioUnitario,
         stock: formData.stock,
-      }
+        demanda: formData.demanda,
+      };
 
-      const response = await fetch("http://localhost:8080/ABMArticulo/modificar", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(articuloModificado),
-      })
+      const response = await fetch(
+        "http://localhost:8080/ABMArticulo/modificar",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(articuloModificado),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
-      alert(`Artículo "${formData.nombre}" modificado exitosamente`)
-      router.push("/maestro-articulos/ABMArticulo")
+      alert(`Artículo "${formData.nombre}" modificado exitosamente`);
+      router.push("/maestro-articulos/ABMArticulo");
     } catch (error) {
-      console.error("Error al modificar artículo:", error)
-      alert(`Error al modificar el artículo: ${error instanceof Error ? error.message : "Error desconocido"}`)
+      console.error("Error al modificar artículo:", error);
+      alert(
+        `Error al modificar el artículo: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -200,7 +214,7 @@ export default function ModificarArticuloPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !articulo) {
@@ -211,15 +225,21 @@ export default function ModificarArticuloPage() {
             <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-red-400 text-2xl">⚠</span>
             </div>
-            <h3 className="text-xl font-semibold text-slate-300 mb-2">Error al cargar artículo</h3>
-            <p className="text-slate-400 mb-4">{error || "Artículo no encontrado"}</p>
+            <h3 className="text-xl font-semibold text-slate-300 mb-2">
+              Error al cargar artículo
+            </h3>
+            <p className="text-slate-400 mb-4">
+              {error || "Artículo no encontrado"}
+            </p>
             <Link href="/maestro-articulos/ABMArticulo">
-              <Button className="bg-blue-600 hover:bg-blue-700">Volver a ABM Artículo</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                Volver a ABM Artículo
+              </Button>
             </Link>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -235,9 +255,13 @@ export default function ModificarArticuloPage() {
         </Link>
 
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-100 mb-4">Modificar Artículo</h1>
+          <h1 className="text-4xl font-bold text-slate-100 mb-4">
+            Modificar Artículo
+          </h1>
           <p className="text-slate-400 text-lg">
-            Editando: <span className="text-blue-400 font-medium">{articulo.nombre}</span> (ID: {articulo.id})
+            Editando:{" "}
+            <span className="text-blue-400 font-medium">{articulo.nombre}</span>{" "}
+            (ID: {articulo.id})
           </p>
         </div>
       </div>
@@ -257,26 +281,36 @@ export default function ModificarArticuloPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Nombre */}
                 <div className="space-y-2">
-                  <Label htmlFor="nombre" className="text-slate-200 font-medium">
+                  <Label
+                    htmlFor="nombre"
+                    className="text-slate-200 font-medium"
+                  >
                     Nombre del Artículo *
                   </Label>
                   <Input
                     id="nombre"
                     type="text"
                     value={formData.nombre}
-                    onChange={(e) => handleInputChange("nombre", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("nombre", e.target.value)
+                    }
                     placeholder="Ingrese el nombre del artículo"
                     className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.nombre ? "border-red-500" : ""
                     }`}
                     disabled={isSaving}
                   />
-                  {errors.nombre && <p className="text-red-400 text-sm">{errors.nombre}</p>}
+                  {errors.nombre && (
+                    <p className="text-red-400 text-sm">{errors.nombre}</p>
+                  )}
                 </div>
 
                 {/* Precio Unitario */}
                 <div className="space-y-2">
-                  <Label htmlFor="precioUnitario" className="text-slate-200 font-medium">
+                  <Label
+                    htmlFor="precioUnitario"
+                    className="text-slate-200 font-medium"
+                  >
                     Precio Unitario *
                   </Label>
                   <Input
@@ -285,19 +319,31 @@ export default function ModificarArticuloPage() {
                     step="0.01"
                     min="0"
                     value={formData.precioUnitario}
-                    onChange={(e) => handleInputChange("precioUnitario", Number.parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "precioUnitario",
+                        Number.parseFloat(e.target.value) || 0
+                      )
+                    }
                     placeholder="0.00"
                     className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.precioUnitario ? "border-red-500" : ""
                     }`}
                     disabled={isSaving}
                   />
-                  {errors.precioUnitario && <p className="text-red-400 text-sm">{errors.precioUnitario}</p>}
+                  {errors.precioUnitario && (
+                    <p className="text-red-400 text-sm">
+                      {errors.precioUnitario}
+                    </p>
+                  )}
                 </div>
 
                 {/* Costo Almacenamiento */}
                 <div className="space-y-2">
-                  <Label htmlFor="costoAlmacenamiento" className="text-slate-200 font-medium">
+                  <Label
+                    htmlFor="costoAlmacenamiento"
+                    className="text-slate-200 font-medium"
+                  >
                     Costo de Almacenamiento
                   </Label>
                   <Input
@@ -306,14 +352,23 @@ export default function ModificarArticuloPage() {
                     step="0.01"
                     min="0"
                     value={formData.costoAlmacenamiento}
-                    onChange={(e) => handleInputChange("costoAlmacenamiento", Number.parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "costoAlmacenamiento",
+                        Number.parseFloat(e.target.value) || 0
+                      )
+                    }
                     placeholder="0.00"
                     className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.costoAlmacenamiento ? "border-red-500" : ""
                     }`}
                     disabled={isSaving}
                   />
-                  {errors.costoAlmacenamiento && <p className="text-red-400 text-sm">{errors.costoAlmacenamiento}</p>}
+                  {errors.costoAlmacenamiento && (
+                    <p className="text-red-400 text-sm">
+                      {errors.costoAlmacenamiento}
+                    </p>
+                  )}
                 </div>
 
                 {/* Stock */}
@@ -326,19 +381,29 @@ export default function ModificarArticuloPage() {
                     type="number"
                     min="0"
                     value={formData.stock}
-                    onChange={(e) => handleInputChange("stock", Number.parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "stock",
+                        Number.parseInt(e.target.value) || 0
+                      )
+                    }
                     placeholder="0"
                     className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.stock ? "border-red-500" : ""
                     }`}
                     disabled={isSaving}
                   />
-                  {errors.stock && <p className="text-red-400 text-sm">{errors.stock}</p>}
+                  {errors.stock && (
+                    <p className="text-red-400 text-sm">{errors.stock}</p>
+                  )}
                 </div>
 
                 {/* Inventario Máximo */}
                 <div className="space-y-2">
-                  <Label htmlFor="inventarioMaxArticulo" className="text-slate-200 font-medium">
+                  <Label
+                    htmlFor="inventarioMaxArticulo"
+                    className="text-slate-200 font-medium"
+                  >
                     Inventario Máximo *
                   </Label>
                   <Input
@@ -346,7 +411,12 @@ export default function ModificarArticuloPage() {
                     type="number"
                     min="1"
                     value={formData.inventarioMaxArticulo}
-                    onChange={(e) => handleInputChange("inventarioMaxArticulo", Number.parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "inventarioMaxArticulo",
+                        Number.parseInt(e.target.value) || 0
+                      )
+                    }
                     placeholder="0"
                     className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.inventarioMaxArticulo ? "border-red-500" : ""
@@ -354,13 +424,18 @@ export default function ModificarArticuloPage() {
                     disabled={isSaving}
                   />
                   {errors.inventarioMaxArticulo && (
-                    <p className="text-red-400 text-sm">{errors.inventarioMaxArticulo}</p>
+                    <p className="text-red-400 text-sm">
+                      {errors.inventarioMaxArticulo}
+                    </p>
                   )}
                 </div>
 
                 {/* Demanda */}
                 <div className="space-y-2">
-                  <Label htmlFor="demanda" className="text-slate-200 font-medium">
+                  <Label
+                    htmlFor="demanda"
+                    className="text-slate-200 font-medium"
+                  >
                     Demanda
                   </Label>
                   <Input
@@ -368,33 +443,49 @@ export default function ModificarArticuloPage() {
                     type="number"
                     min="0"
                     value={formData.demanda}
-                    onChange={(e) => handleInputChange("demanda", Number.parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "demanda",
+                        Number.parseInt(e.target.value) || 0
+                      )
+                    }
                     placeholder="0"
                     className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 ${
                       errors.demanda ? "border-red-500" : ""
                     }`}
                     disabled={isSaving}
                   />
-                  {errors.demanda && <p className="text-red-400 text-sm">{errors.demanda}</p>}
+                  {errors.demanda && (
+                    <p className="text-red-400 text-sm">{errors.demanda}</p>
+                  )}
                 </div>
               </div>
 
               {/* Descripción - Campo completo */}
               <div className="space-y-2">
-                <Label htmlFor="descripcionArt" className="text-slate-200 font-medium">
+                <Label
+                  htmlFor="descripcionArt"
+                  className="text-slate-200 font-medium"
+                >
                   Descripción del Artículo *
                 </Label>
                 <Textarea
                   id="descripcionArt"
                   value={formData.descripcionArt}
-                  onChange={(e) => handleInputChange("descripcionArt", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("descripcionArt", e.target.value)
+                  }
                   placeholder="Ingrese una descripción detallada del artículo"
                   className={`bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500 min-h-[100px] ${
                     errors.descripcionArt ? "border-red-500" : ""
                   }`}
                   disabled={isSaving}
                 />
-                {errors.descripcionArt && <p className="text-red-400 text-sm">{errors.descripcionArt}</p>}
+                {errors.descripcionArt && (
+                  <p className="text-red-400 text-sm">
+                    {errors.descripcionArt}
+                  </p>
+                )}
               </div>
 
               {/* Información adicional */}
@@ -434,7 +525,9 @@ export default function ModificarArticuloPage() {
 
         {/* Información adicional */}
         <div className="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
-          <h4 className="text-slate-200 font-medium mb-2">Información del artículo original</h4>
+          <h4 className="text-slate-200 font-medium mb-2">
+            Información del artículo original
+          </h4>
           <div className="text-sm text-slate-400 space-y-1">
             <p>• ID: {articulo.id}</p>
             <p>• Fecha de baja: {articulo.fhBajaArticulo || "Activo"}</p>
@@ -443,5 +536,5 @@ export default function ModificarArticuloPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

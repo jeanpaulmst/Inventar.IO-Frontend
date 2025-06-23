@@ -1,53 +1,60 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { ArrowLeft, Plus } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AltaProveedorPage() {
-  const [nombre, setNombre] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [nombre, setNombre] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validación básica
     if (!nombre.trim()) {
-      alert("Por favor, ingrese el nombre del proveedor")
-      return
+      alert("Por favor, ingrese el nombre del proveedor");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Aquí iría la lógica para agregar el proveedor
-      console.log("Agregando proveedor:", { nombre: nombre.trim() })
-      
-      // Simulamos una llamada a la API
-      await fetch(`${API_URL}/ABMProveedor/alta?nombreProveedor=${nombre.trim()}`, {
-        method: "POST"
-      })
+      console.log("Agregando proveedor:", { nombre: nombre.trim() });
 
-      alert(`Proveedor "${nombre.trim()}" agregado exitosamente`)
+      // Simulamos una llamada a la API
+      const response = await fetch(
+        `${API_URL}/ABMProveedor/alta?nombreProveedor=${nombre.trim()}`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error al agregar el proveedor. ${errorData.mensaje}`);
+      } else {
+        alert(`Proveedor "${nombre.trim()}" agregado exitosamente`);
+      }
 
       // Limpiar el formulario
-      setNombre("")
+      setNombre("");
     } catch (error) {
-      console.error("Error al agregar proveedor:", error)
-      alert("Error al agregar el proveedor. Por favor, intente nuevamente.")
+      console.error("Error al agregar proveedor:", error);
+      alert("Error al agregar el proveedor. Por favor, intente nuevamente.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-  
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
@@ -63,8 +70,12 @@ export default function AltaProveedorPage() {
           </Link>
 
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-slate-100 mb-4">Agregar Nuevo Proveedor</h1>
-            <p className="text-slate-400 text-lg">Complete la información del nuevo proveedor</p>
+            <h1 className="text-4xl font-bold text-slate-100 mb-4">
+              Agregar Nuevo Proveedor
+            </h1>
+            <p className="text-slate-400 text-lg">
+              Complete la información del nuevo proveedor
+            </p>
           </div>
         </div>
 
@@ -81,7 +92,10 @@ export default function AltaProveedorPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Campo Nombre */}
                 <div className="space-y-2">
-                  <Label htmlFor="nombre" className="text-slate-200 font-medium">
+                  <Label
+                    htmlFor="nombre"
+                    className="text-slate-200 font-medium"
+                  >
                     Nombre del Proveedor *
                   </Label>
                   <Input
@@ -94,15 +108,21 @@ export default function AltaProveedorPage() {
                     required
                     disabled={isLoading}
                   />
-                  <p className="text-xs text-slate-400">Ingrese el nombre completo o razón social del proveedor</p>
+                  <p className="text-xs text-slate-400">
+                    Ingrese el nombre completo o razón social del proveedor
+                  </p>
                 </div>
 
                 {/* Información adicional */}
                 <div className="p-4 bg-slate-700 rounded-lg border border-slate-600">
-                  <h3 className="text-slate-200 font-medium mb-2">Información</h3>
+                  <h3 className="text-slate-200 font-medium mb-2">
+                    Información
+                  </h3>
                   <ul className="text-sm text-slate-400 space-y-1">
                     <li>• El nombre del proveedor es obligatorio</li>
-                    <li>• Asegúrese de que el nombre sea único en el sistema</li>
+                    <li>
+                      • Asegúrese de que el nombre sea único en el sistema
+                    </li>
                     <li>• Puede modificar esta información posteriormente</li>
                   </ul>
                 </div>
@@ -133,15 +153,23 @@ export default function AltaProveedorPage() {
 
           {/* Información adicional */}
           <div className="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
-            <h4 className="text-slate-200 font-medium mb-2">¿Qué sucede después?</h4>
+            <h4 className="text-slate-200 font-medium mb-2">
+              ¿Qué sucede después?
+            </h4>
             <div className="text-sm text-slate-400 space-y-1">
               <p>• El proveedor será agregado al sistema con estado "Activo"</p>
-              <p>• Podrá modificar o eliminar el proveedor desde la lista de ABM Proveedor</p>
-              <p>• El proveedor estará disponible para asociar con artículos y órdenes de compra</p>
+              <p>
+                • Podrá modificar o eliminar el proveedor desde la lista de ABM
+                Proveedor
+              </p>
+              <p>
+                • El proveedor estará disponible para asociar con artículos y
+                órdenes de compra
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

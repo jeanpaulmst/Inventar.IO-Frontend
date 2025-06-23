@@ -1,59 +1,66 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { ArrowLeft, Plus } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AltaEstadoOrdenCompraPage() {
-  const [nombre, setNombre] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [nombre, setNombre] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // URLs base para los endpoints
-  const API_URL_ESTADOS = "http://localhost:8080/ABMEstadoOrdenCompra"
+  const API_URL_ESTADOS = "http://localhost:8080/ABMEstadoOrdenCompra";
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validación básica
     if (!nombre.trim()) {
-      alert("Por favor, ingrese el nombre del estado")
-      return
+      alert("Por favor, ingrese el nombre del estado");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       const response = await fetch(
-        `${API_URL_ESTADOS}/altaEstado?nombreEstado=${encodeURIComponent(nombre.trim())}`,
+        `${API_URL_ESTADOS}/altaEstado?nombreEstado=${encodeURIComponent(
+          nombre.trim()
+        )}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-        },
-      )
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
+        const errorData = await response.json();
+        throw new Error(`Error: ${errorData.mensaje}`);
       }
 
-      alert(`Estado "${nombre.trim()}" creado exitosamente`)
+      alert(`Estado "${nombre.trim()}" creado exitosamente`);
 
       // Limpiar el formulario
-      setNombre("")
+      setNombre("");
     } catch (error) {
-      console.error("Error al crear estado:", error)
-      alert(`Error al crear el estado: ${error instanceof Error ? error.message : "Error desconocido"}`)
+      console.error("Error al crear estado:", error);
+      alert(
+        `Error al crear el estado: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -68,8 +75,12 @@ export default function AltaEstadoOrdenCompraPage() {
         </Link>
 
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-100 mb-4">Agregar Nuevo Estado de Orden de Compra</h1>
-          <p className="text-slate-400 text-lg">Complete la información del nuevo estado de orden de compra</p>
+          <h1 className="text-4xl font-bold text-slate-100 mb-4">
+            Agregar Nuevo Estado de Orden de Compra
+          </h1>
+          <p className="text-slate-400 text-lg">
+            Complete la información del nuevo estado de orden de compra
+          </p>
         </div>
       </div>
 
@@ -100,7 +111,8 @@ export default function AltaEstadoOrdenCompraPage() {
                   disabled={isLoading}
                 />
                 <p className="text-xs text-slate-400">
-                  Ingrese un nombre descriptivo para el estado (ej: "Pendiente", "Aprobada", "Rechazada", etc.)
+                  Ingrese un nombre descriptivo para el estado (ej: "Pendiente",
+                  "Aprobada", "Rechazada", etc.)
                 </p>
               </div>
 
@@ -110,7 +122,10 @@ export default function AltaEstadoOrdenCompraPage() {
                 <ul className="text-sm text-slate-400 space-y-1">
                   <li>• El nombre del estado es obligatorio</li>
                   <li>• Asegúrese de que el nombre sea único en el sistema</li>
-                  <li>• Use nombres descriptivos como "Pendiente", "Aprobada", "Rechazada", "Cancelada", etc.</li>
+                  <li>
+                    • Use nombres descriptivos como "Pendiente", "Aprobada",
+                    "Rechazada", "Cancelada", etc.
+                  </li>
                   <li>• Puede modificar esta información posteriormente</li>
                 </ul>
               </div>
@@ -141,15 +156,22 @@ export default function AltaEstadoOrdenCompraPage() {
 
         {/* Información adicional */}
         <div className="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
-          <h4 className="text-slate-200 font-medium mb-2">¿Qué sucede después?</h4>
+          <h4 className="text-slate-200 font-medium mb-2">
+            ¿Qué sucede después?
+          </h4>
           <div className="text-sm text-slate-400 space-y-1">
             <p>• El estado será agregado al sistema con estado "Activo"</p>
-            <p>• Podrá modificar o eliminar el estado desde la lista de ABM Estado Orden de Compra</p>
-            <p>• El estado estará disponible para asociar con órdenes de compra</p>
+            <p>
+              • Podrá modificar o eliminar el estado desde la lista de ABM
+              Estado Orden de Compra
+            </p>
+            <p>
+              • El estado estará disponible para asociar con órdenes de compra
+            </p>
             <p>• Se registrará la fecha y hora de creación automáticamente</p>
           </div>
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}
