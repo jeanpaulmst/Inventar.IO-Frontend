@@ -23,6 +23,7 @@ interface DTODetallesOCEnviar {
   nombreProveedor: string
 }
 
+
 interface DTOEnviarOrdenCompra {
   idOC: number
   fhAltaOC: string
