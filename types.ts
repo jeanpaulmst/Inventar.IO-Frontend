@@ -2,13 +2,13 @@
 
 //CU1_GenerarVenta
 export interface DTOGenerarVenta {
-    detalles : DTODetalleGenerarVenta[]
-    total : number
+  detalles: DTODetalleGenerarVenta[];
+  total: number;
 }
 export interface DTODetalleGenerarVenta {
-    articuloID : number
-    cantidad : number
-    subTotal : number
+  articuloID: number;
+  cantidad: number;
+  subTotal: number;
 }
 
 //CU2_ListarProductosAReponer -- CU3_ListarProductosFaltantes
@@ -30,37 +30,37 @@ export interface DTOArticulo {
 
 //CU4_ModificarOrdenDeCompra
 export interface OrdenDeCompra {
-  idOrdenDeCompra: number
-  articulos: string[]
-  total: number
-  estado: string
+  idOrdenDeCompra: number;
+  articulos: string[];
+  total: number;
+  estado: string;
 }
 
 export interface DTODetallesOC {
-  idOCDetalle: number
-  cantidad: number
-  subTotal: number
-  costoUnitario: number
-  costoPedido: number
-  nombreArt: string
-  costoAlmacenamientoArt: number
-  nombreProveedor: string
-  predeterminado: boolean
-  puntoPedido: number
+  idOCDetalle: number;
+  cantidad: number;
+  subTotal: number;
+  costoUnitario: number;
+  costoPedido: number;
+  nombreArt: string;
+  costoAlmacenamientoArt: number;
+  nombreProveedor: string;
+  predeterminado: boolean;
+  puntoPedido: number;
 }
 
 export interface DTOProveedor {
-  idProveedor: number
-  nombreProveedor: string
-  costoPedido: number
-  costoUnitario: number
+  idProveedor: number;
+  nombreProveedor: string;
+  costoPedido: number;
+  costoUnitario: number;
 }
 
 export interface DTOModificarOrdenCompra {
-  idOC: number
-  fhAltaOC: Date
-  detallesOC: DTODetallesOC[]
-  proveedores: DTOProveedor[]
+  idOC: number;
+  fhAltaOC: Date;
+  detallesOC: DTODetallesOC[];
+  proveedores: DTOProveedor[];
 }
 
 //CU9_GenerarOrdenCompra
@@ -94,6 +94,7 @@ export interface ProveedorArticulo {
   nombreProvedor: string;
   costoUnitario: number;
   predeterminado: boolean;
+  articuloProveedorId: number;
 }
 
 export interface DTONuevaOrden {
@@ -104,83 +105,79 @@ export interface DTONuevaOrden {
 export interface DTODetalleOrden {
   cantidad: number;
   subtotal: number;
-  articuloProveedorId: number
+  articuloProveedorId: number;
 }
 
 //CU11_ListarArticuloXProveedores
 export interface DTOProveedor {
-  idProv: number
-  nombreProveedor: string
-  fhBajaProveedor: string
+  idProv: number;
+  nombreProveedor: string;
+  fhBajaProveedor: string;
 }
 
 export interface DTOArticuloProv {
-
-    idArticulo : number
-    nombreArticulo : string
-    modeloInventario : string
-    isPredeterminado : boolean
-    descripcionArticulo : string
-    precioUnitario : number
-    costoUnitario : number
-    demoraEntrega : number
-    costoPedido : number
-    stock : number
-
+  idArticulo: number;
+  nombreArticulo: string;
+  modeloInventario: string;
+  isPredeterminado: boolean;
+  descripcionArticulo: string;
+  precioUnitario: number;
+  costoUnitario: number;
+  demoraEntrega: number;
+  costoPedido: number;
+  stock: number;
 }
 
 //CU12_AjustarInventario
 export interface DTOAjustarInventario {
-    nombre: string
-    cantidad: number
+  nombre: string;
+  cantidad: number;
 }
 
 //CU_13_ABMArticulo
 export interface DTOABMArticulo {
-
-  costoAlmacenamiento: number
-  demanda: number
-  descripcionArt: string
-  inventarioMaxArticulo: number
-  nombre: string
-  precioUnitario: number
-  stock: number
-
+  costoAlmacenamiento: number;
+  demanda: number;
+  descripcionArt: string;
+  inventarioMaxArticulo: number;
+  nombre: string;
+  precioUnitario: number;
+  stock: number;
 }
 
 //CU14_ABMProveedor
 export interface DTOProveedor {
-  idProv: number
-  nombreProveedor: string
-  fhBajaProveedor: string
+  idProv: number;
+  nombreProveedor: string;
+  fhBajaProveedor: string;
 }
 
 //CU16_ABMEstadoOrdenCompra
 export interface DTOABMEstadoOrdenCompra {
-  idEOC: number
-  nombreEstado: string
-  fhBajaEOC: number | null
+  idEOC: number;
+  nombreEstado: string;
+  fhBajaEOC: number | null;
 }
 
 //CU18_CalcularCGI
 export interface DTOTablaArticulo {
-    id: number  
-    nombre: string
-    descripcionArt: string
-    stock: number
+  id: number;
+  nombre: string;
+  descripcionArt: string;
+  stock: number;
 }
 
 export interface DTOCalcularCGI {
-    nombreArticulo: string
-    datosCGI : DTODatosCGI[]
+  nombreArticulo: string;
+  datosCGI: DTODatosCGI[];
 }
 
 export interface DTODatosCGI {
-    nombreProveedor : string
-    nombreTipoModelo : string
-    cgi : number
-    costoCompra : number
-    costoPedido : number
-    costoAlmacenamiento : number
-    predeterminado: boolean
+  nombreProveedor: string;
+  nombreTipoModelo: string;
+  cgi: number;
+  costoCompra: number;
+  costoPedido: number;
+  costoAlmacenamiento: number;
+  predeterminado: boolean;
 }
