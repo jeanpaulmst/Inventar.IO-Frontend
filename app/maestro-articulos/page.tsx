@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, TrendingUp, AlertCircle, CheckCircle } from "lucide-react"
+import { Package } from "lucide-react"
 
 export default function MaestroArticulosPage() {
   return (

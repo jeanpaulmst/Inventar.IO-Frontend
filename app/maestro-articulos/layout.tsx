@@ -16,6 +16,7 @@ import {
   Search,
   Calculator,
   Package,
+  Link as LinkIcon,
 } from "lucide-react"
 import {
   Sidebar,
@@ -46,6 +47,13 @@ const menuItems = [
     url: "/maestro-articulos/ABMModeloInventario",
     icon: Package,
     description: "Administrar modelos de inventario",
+    available: true,
+  },
+  {
+    title: "Artículos Proveedores",
+    url: "/maestro-articulos/ListarArticuloProveedor",
+    icon: LinkIcon,
+    description: "Ver asignaciones de artículos a proveedores",
     available: true,
   },
   {

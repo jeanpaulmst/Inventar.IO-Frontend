@@ -36,10 +36,16 @@ interface Proveedor {
   fhBajaProveedor: string | null
 }
 
-interface ModeloInventario {
+interface ArtModeloInventario {
   id: number
   nombreModelo: string
   fhBajaModeloInventario: Date | null
+}
+
+interface ModeloInventario {
+  idMI: number
+  nombreMI: string
+  fhBajaMI: Date | null
 }
 
 interface ArticuloProveedor {
@@ -55,7 +61,7 @@ interface ArticuloProveedor {
   loteOptimo: number | null
   articulo: Articulo
   proveedor: Proveedor
-  modeloInventario: ModeloInventario
+  modeloInventario: ArtModeloInventario
 }
 
 interface DTOAsignarProveedor {
@@ -151,7 +157,7 @@ export default function ListarArticuloProveedorPage() {
   // Cargar modelos de inventario
   const fetchModelosInventario = async () => {
     try {
-      const response = await fetch(`${API_URL}/ABMModeloInventario/getModelos`)
+      const response = await fetch(`${API_URL}/ABMModeloInventario/getModelos?soloVigentes=true`)
       if (response.ok) {
         const data = await response.json()
         setModelosInventario(data || [])
@@ -404,7 +410,7 @@ export default function ListarArticuloProveedorPage() {
                       </TableCell>
                       <TableCell>
                         <Badge className="bg-purple-600 text-white hover:bg-purple-700">
-                          {ap.modeloInventario.nombreModelo}
+                        {ap.modeloInventario.nombreModelo}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-green-400 font-semibold">
@@ -516,6 +522,29 @@ export default function ListarArticuloProveedorPage() {
 
               {/* Campos editables */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="modeloInventario" className="text-slate-300">Modelo de Inventario</Label>
+                  <Select
+                    value={editForm.modeloInventarioId?.toString()}
+                    onValueChange={(value) => setEditForm({ ...editForm, modeloInventarioId: parseInt(value) })}
+                  >
+                    <SelectTrigger id="modeloInventario" className="bg-slate-700 border-slate-600 text-slate-100">
+                        <SelectValue placeholder="Seleccione un modelo" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-700 text-slate-100 border-slate-600">
+                        {modelosInventario.map((modelo) => (
+                            <SelectItem
+                                key={modelo.idMI}
+                                value={modelo.idMI.toString()}
+                                className="hover:bg-slate-600 focus:bg-slate-600"
+                            >
+                                {modelo.nombreMI}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="costoPedido" className="text-slate-300">Costo de Pedido</Label>
                   <Input
