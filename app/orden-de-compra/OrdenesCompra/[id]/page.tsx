@@ -34,6 +34,7 @@ interface DTODetallesOC {
 
 interface DTOProveedor {
   idProveedor: number
+  idArticuloProveedor: number 
   nombreProveedor: string
   costoPedido: number
   costoUnitario: number
@@ -58,6 +59,12 @@ interface DTODatosModificacion {
   confirmadoPorUsuario: boolean
 }
 
+interface DTODetalleOrdenNueva {
+  cantidad: number
+  articuloProveedorId: number
+  subTotal: number
+}
+
 export default function ModificarOrdenCompraPage() {
   const params = useParams()
   const router = useRouter()
@@ -74,6 +81,7 @@ export default function ModificarOrdenCompraPage() {
 
   // URLs base para los endpoints
   const API_URL_MODIFICAR = "http://localhost:8080/ModificarOrdenCompra"
+  const API_URL_NUEVA_ORDEN = "http://localhost:8080/GenerarOrdenCompra/nuevaOrden"
 
   // Cargar datos de la orden al montar el componente
   useEffect(() => {
@@ -114,40 +122,93 @@ export default function ModificarOrdenCompraPage() {
 
   const handleConfirmar = async () => {
     if (!orden) return
-
     setIsSaving(true)
 
     try {
-      const detallesMod: DTODetallesDatosMod[] = orden.detallesOC.map((detalle, index) => ({
-        idOCDetalle: detalle.idOCDetalle,
-        cantidad: cantidades[index],
-        idProveedor: proveedoresSeleccionados[index],
-      }))
+      // 1. Preparar arrays para detalles que NO cambian proveedor y detalles NUEVOS para nuevas órdenes
+      const detallesModificados: DTODetallesDatosMod[] = []
+      const detallesNuevos: DTODetalleOrdenNueva[] = []
 
-      const datosModificados: DTODatosModificacion = {
-        idOC: orden.idOC,
-        detallesMod,
-        confirmadoPorUsuario: true, // Siempre confirmado para evitar validaciones del backend
-      }
+      orden.detallesOC.forEach((detalle, idx) => {
+        const cantidad = cantidades[idx]
+        const proveedorSeleccionadoId = proveedoresSeleccionados[idx]
 
-      const response = await fetch(`${API_URL_MODIFICAR}/confirmar`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(datosModificados)
+        // Buscar proveedor original por nombre
+        const proveedorOriginal = orden.proveedores.find(p => p.nombreProveedor === detalle.nombreProveedor)
+        const idProveedorOriginal = proveedorOriginal?.idProveedor ?? 0
+
+        if (idProveedorOriginal === proveedorSeleccionadoId) {
+          // Mismo proveedor, actualizar cantidad
+          detallesModificados.push({
+            idOCDetalle: detalle.idOCDetalle,
+            cantidad,
+            idProveedor: idProveedorOriginal
+          })
+        } else {
+          // Proveedor cambiado => Detalle nuevo para orden nueva
+          // Buscar datos del proveedor nuevo para calcular subtotal
+          const proveedorNuevo = orden.proveedores.find(p => p.idProveedor === proveedorSeleccionadoId)
+          if (!proveedorNuevo) throw new Error("Proveedor seleccionado no válido")
+
+          detallesNuevos.push({
+            cantidad,
+            articuloProveedorId: proveedorSeleccionadoId,
+            subTotal: cantidad * proveedorNuevo.costoUnitario
+          })
+
+          // Para la orden original, seteamos cantidad en 0 para ese detalle
+          detallesModificados.push({
+            idOCDetalle: detalle.idOCDetalle,
+            cantidad: 0,
+            idProveedor: idProveedorOriginal
+          })
+        }
       })
 
-      if (response.ok) {
-        alert("Orden de compra modificada correctamente.")
-        router.push("/orden-de-compra/OrdenesCompra")
-      } else {
-        const errorText = await response.text()
-        alert("Error al modificar la orden:\n" + errorText)
+      // 2. Enviar modificación a la orden original con detalles que quedan (los que no cambiaron proveedor o que se ponen en 0)
+      const datosModificacion: DTODatosModificacion = {
+        idOC: orden.idOC,
+        detallesMod: detallesModificados,
+        confirmadoPorUsuario: true
       }
+
+      const resModificar = await fetch(`${API_URL_MODIFICAR}/confirmar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosModificacion)
+      })
+
+      if (!resModificar.ok) {
+        const errorText = await resModificar.text()
+        throw new Error(`Error modificando orden: ${errorText}`)
+      }
+
+      // 3. Si hay detalles con proveedor cambiado, crear nuevas órdenes
+      if (detallesNuevos.length > 0) {
+        // Agrupar detalles por proveedor (aunque acá ya vienen todos con el proveedor correcto)
+        // Para tu caso, todos son del mismo proveedor porque vienen separados, pero si cambias por detalles múltiples, agrupa por articuloProveedorId si quieres.
+        const nuevaOrdenPayload = {
+          detalles: detallesNuevos,
+          confirmacion: true
+        }
+
+        const resNuevaOrden = await fetch(API_URL_NUEVA_ORDEN, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevaOrdenPayload)
+        })
+
+        if (!resNuevaOrden.ok) {
+          const errorText = await resNuevaOrden.text()
+          throw new Error(`Error creando nueva orden: ${errorText}`)
+        }
+      }
+
+      alert("Orden modificada correctamente.")
+      router.push("/orden-de-compra/OrdenesCompra")
+
     } catch (error) {
-      console.error("Error al modificar orden:", error)
-      alert(`Error al modificar la orden: ${error instanceof Error ? error.message : "Error desconocido"}`)
+      alert(`Error al guardar cambios: ${error instanceof Error ? error.message : "Error desconocido"}`)
     } finally {
       setIsSaving(false)
     }
