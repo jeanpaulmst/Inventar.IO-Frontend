@@ -566,7 +566,16 @@ export default function ListarArticuloProveedorPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEdit(ap)}
-                            className="border-blue-600 text-blue-400 hover:bg-blue-600 hover:text-white"
+                            disabled={!!ap.fechaBaja} // <-- deshabilito si inactivo
+                            className={`
+                                                border-blue-600 text-blue-400 
+                                                hover:bg-blue-600 hover:text-white
+                                                ${
+                                                  ap.fechaBaja
+                                                    ? "opacity-50 cursor-not-allowed hover:bg-none hover:text-blue-400"
+                                                    : ""
+                                                }
+                                              `}
                           >
                             <Edit className="w-3 h-3" />
                           </Button>
@@ -574,8 +583,16 @@ export default function ListarArticuloProveedorPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleDelete(ap.id)}
-                            disabled={isDeleting}
-                            className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                            disabled={!!ap.fechaBaja || isDeleting} // <-- idem para eliminar
+                            className={`
+                                      border-red-600 text-red-400 
+                                      hover:bg-red-600 hover:text-white
+                                      ${
+                                        ap.fechaBaja
+                                          ? "opacity-50 cursor-not-allowed hover:bg-none hover:text-red-400"
+                                          : ""
+                                      }
+                                    `}
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
