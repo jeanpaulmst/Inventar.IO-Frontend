@@ -524,9 +524,13 @@ export default function ListarArticuloProveedorPage() {
                       </TableCell>
                       <TableCell>
                         {ap.loteOptimo !== null ? (
-                          <span className="text-slate-300">
-                            {ap.loteOptimo}
-                          </span>
+                          ap.loteOptimo > 0 ? (
+                            <span className="text-slate-300">
+                              {ap.loteOptimo}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300">0</span>
+                          )
                         ) : (
                           <span className="text-slate-500">-</span>
                         )}
