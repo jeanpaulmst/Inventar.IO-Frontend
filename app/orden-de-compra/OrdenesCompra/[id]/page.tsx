@@ -91,7 +91,8 @@ export default function ModificarOrdenCompraPage() {
         const response = await fetch(`${API_URL_MODIFICAR}/getDatosOC?idOC=${ordenId}`)
 
         if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`)
+          const dataResponse = await response.json();
+          throw new Error(`Error: ${dataResponse.mensaje}`)
         }
 
         const data: DTOModificarOrdenCompra = await response.json()
@@ -381,87 +382,63 @@ export default function ModificarOrdenCompraPage() {
                     </div>
 
                     {/* Controles de modificación */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-slate-200 mb-3">Modificar</h3>
-                      
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-slate-300 text-sm font-medium mb-2">
-                            Cantidad
-                          </label>
-                          <Input
-                            type="number"
-                            min="1"
-                            value={cantidadActual || ""}
-                            onChange={(e) => {
-                              const nuevasCantidades = [...cantidades]
-                              const valor = e.target.value === "" ? 0 : parseInt(e.target.value)
-                              nuevasCantidades[index] = valor
-                              setCantidades(nuevasCantidades)
-                            }}
-                            className="bg-slate-700 border-slate-600 text-slate-200"
-                          />
-                          {(() => {
-                            const stockActual = detalle.stock || 0
-                            const cantidadSolicitada = cantidadActual
-                            const stockTotal = stockActual + cantidadSolicitada
-                            
-                            if (stockTotal < detalle.puntoPedido) {
-                              return (
-                                <p className="text-yellow-400 text-sm mt-1">
-                                  ⚠️ Stock total ({stockTotal}) menor al punto de pedido ({detalle.puntoPedido})
-                                  <br />
-                                  <span className="text-slate-400 text-xs">
-                                    Stock actual: {stockActual} + Cantidad solicitada: {cantidadSolicitada}
-                                  </span>
-                                </p>
-                              )
-                            }
-                            return null
-                          })()}
-                        </div>
+<div className="space-y-4">
+  <h3 className="text-lg font-semibold text-slate-200 mb-3">Modificar</h3>
+  
+  <div className="space-y-4">
+    {/* Campo de cantidad */}
+    <div>
+      <label className="block text-slate-300 text-sm font-medium mb-2">
+        Cantidad
+      </label>
+      <Input
+        type="number"
+        min="1"
+        value={cantidadActual || ""}
+        onChange={(e) => {
+          const nuevasCantidades = [...cantidades];
+          const valor = e.target.value === "" ? 0 : parseInt(e.target.value);
+          nuevasCantidades[index] = valor;
+          setCantidades(nuevasCantidades);
+        }}
+        className="bg-slate-700 border-slate-600 text-slate-200"
+      />
+      {(() => {
+        const stockActual = detalle.stock || 0;
+        const cantidadSolicitada = cantidadActual;
+        const stockTotal = stockActual + cantidadSolicitada;
 
-                        <div>
-                          <label className="block text-slate-300 text-sm font-medium mb-2">
-                            Proveedor
-                          </label>
-                          <Select
-                            value={proveedoresSeleccionados[index]?.toString()}
-                            onValueChange={(value) => {
-                              const nuevosSeleccionados = [...proveedoresSeleccionados]
-                              nuevosSeleccionados[index] = parseInt(value)
-                              setProveedoresSeleccionados(nuevosSeleccionados)
-                            }}
-                          >
-                            <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-200">
-                              <SelectValue placeholder="Seleccionar proveedor" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-slate-700 border-slate-600">
-                              {orden.proveedores.map((prov) => {
-                                const esPredeterminado = prov.nombreProveedor === detalle.nombreProveedor && detalle.isPredeterminado
-                                return (
-                                  <SelectItem
-                                    key={prov.idProveedor}
-                                    value={prov.idProveedor.toString()}
-                                    className="text-slate-200 hover:bg-slate-600"
-                                  >
-                                    <div className="flex flex-col">
-                                      <span className={esPredeterminado ? "text-yellow-400 font-semibold" : ""}>
-                                        {prov.nombreProveedor}
-                                      </span>
-                                      <span className="text-sm text-slate-400">
-                                        Unitario: ${prov.costoUnitario.toFixed(2)} | Pedido: ${prov.costoPedido.toFixed(2)}
-                                      </span>
-                                    </div>
-                                  </SelectItem>
-                                )
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+        if (stockTotal < detalle.puntoPedido) {
+          return (
+            <p className="text-yellow-400 text-sm mt-1">
+              ⚠️ Stock total ({stockTotal}) menor al punto de pedido ({detalle.puntoPedido})
+              <br />
+              <span className="text-slate-400 text-xs">
+                Stock actual: {stockActual} + Cantidad solicitada: {cantidadSolicitada}
+              </span>
+            </p>
+          );
+        }
+        return null;
+      })()}
+    </div>
+
+    {/* Proveedor solo texto */}
+    <div>
+      <label className="block text-slate-300 text-sm font-medium mb-2">
+        Proveedor
+      </label>
+      <div className="bg-slate-700 border-slate-600 rounded p-3">
+        <span className="text-slate-200">{detalle.nombreProveedor}</span>
+        {detalle.isPredeterminado && (
+          <span className="ml-2 text-yellow-400 font-semibold">(Predeterminado)</span>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
 
                   {/* Resumen de costos */}
                   <div className="mt-6 p-4 bg-slate-700 rounded-lg border border-slate-600">
