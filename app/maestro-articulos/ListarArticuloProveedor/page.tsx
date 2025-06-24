@@ -452,6 +452,9 @@ export default function ListarArticuloProveedorPage() {
                       Lote Óptimo
                     </TableHead>
                     <TableHead className="text-blue-200 font-semibold">
+                      Punto de Pedido
+                    </TableHead>
+                    <TableHead className="text-blue-200 font-semibold">
                       Estado
                     </TableHead>
                     <TableHead className="text-blue-200 font-semibold">
@@ -534,6 +537,33 @@ export default function ListarArticuloProveedorPage() {
                         ) : (
                           <span className="text-slate-500">-</span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        {(() => {
+                          const esLoteFijo = ap.modeloInventario.nombreModelo.toLowerCase().includes('lote fijo');
+                          const esPredeterminado = ap.predeterminado;
+                          const tienePuntoPedido = ap.articulo.puntoPedido !== null && ap.articulo.puntoPedido !== undefined;
+                          
+                          if (esLoteFijo && esPredeterminado && tienePuntoPedido) {
+                            return (
+                              <span className="text-green-400 font-semibold">
+                                {ap.articulo.puntoPedido}
+                              </span>
+                            );
+                          } else if (esLoteFijo && esPredeterminado && !tienePuntoPedido) {
+                            return (
+                              <span className="text-orange-400 text-sm">
+                                Sin calcular
+                              </span>
+                            );
+                          } else {
+                            return (
+                              <span className="text-slate-500 text-sm">
+                                N/A
+                              </span>
+                            );
+                          }
+                        })()}
                       </TableCell>
                       <TableCell>
                         <Badge
